@@ -4,7 +4,14 @@
       "Bash(npm run dev:*)",
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nClaude created full game with smoke and engine sounds\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(killall:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(ls:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
