@@ -136,9 +136,11 @@ export default class GameScene extends Phaser.Scene {
     const gameWidth = this.scale.width;
     const gameHeight = this.scale.height;
 
-    // Create ONE tileSprite that spans the full game width
-    // Height is the texture's native height
-    const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, texHeight, key);
+    // Calculate the physical height this layer should occupy
+    const targetHeight = texHeight * scale;
+
+    // Create a tileSprite that fills the FULL width, but has the scaled-down height
+    const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, targetHeight, key);
 
     if (anchorBottom) {
       sprite.setOrigin(0.5, 1); // Anchor bottom-center
@@ -146,11 +148,16 @@ export default class GameScene extends Phaser.Scene {
     } else {
       sprite.setOrigin(0.5, 0); // Anchor top-center (for sky)
       sprite.setPosition(gameWidth / 2, 0);
+      // For sky, we might want full height if it cuts off
+      sprite.height = gameHeight;
     }
 
     sprite.setScrollFactor(0); // Fix to camera
-    sprite.setScale(scale); // Scale it down
-    sprite.setDepth(this.bgLayers.length); // Auto-depth
+
+    // CRITICAL FIX: Scale the texture pattern, NOT the sprite object
+    sprite.setTileScale(scale, scale);
+
+    sprite.setDepth(this.bgLayers.length);
 
     // Store for update loop
     this.bgLayers.push({ sprite, scrollFactor });
