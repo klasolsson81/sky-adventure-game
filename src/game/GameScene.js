@@ -136,10 +136,25 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createParallaxLayer(key, scrollFactor, scale, anchorBottom = true) {
-    const tex = this.textures.get(key);
-    const texHeight = tex.getSourceImage().height;
     const gameWidth = this.scale.width;
     const gameHeight = this.scale.height;
+
+    // SPECIAL CASE: bg_sky should be a stretched image, not a tileSprite
+    if (key === 'bg_sky') {
+      const sprite = this.add.image(gameWidth / 2, gameHeight / 2, key);
+      sprite.setOrigin(0.5, 0.5); // Center origin
+      sprite.setDisplaySize(gameWidth, gameHeight); // Stretch to fill screen
+      sprite.setScrollFactor(0); // Fix to camera
+      sprite.setDepth(this.bgLayers.length);
+
+      // Store for update loop (no scrolling for sky)
+      this.bgLayers.push({ sprite, scrollFactor: 0 });
+      return;
+    }
+
+    // For all other layers: use tileSprite for seamless scrolling
+    const tex = this.textures.get(key);
+    const texHeight = tex.getSourceImage().height;
 
     // Apply responsive scaling
     const responsiveScale = scale * this.scaleRatio;
@@ -154,9 +169,8 @@ export default class GameScene extends Phaser.Scene {
       sprite.setOrigin(0.5, 1); // Anchor bottom-center
       sprite.setPosition(gameWidth / 2, gameHeight); // Stick to bottom
     } else {
-      sprite.setOrigin(0.5, 0); // Anchor top-center (for sky)
+      sprite.setOrigin(0.5, 0); // Anchor top-center
       sprite.setPosition(gameWidth / 2, 0);
-      // For sky, we might want full height if it cuts off
       sprite.height = gameHeight;
     }
 
@@ -178,25 +192,23 @@ export default class GameScene extends Phaser.Scene {
     const height = this.scale.height;
     const moveSpeed = 300;
 
-    // Touch controls for mobile
+    // Touch controls for mobile - move towards finger position
     const pointer = this.input.activePointer;
     if (pointer.isDown) {
-      // Touch is active - use touch position for movement
-      const touchX = pointer.x;
-      const touchY = pointer.y;
+      // Calculate distance to touch point
+      const distance = Phaser.Math.Distance.Between(
+        this.player.x,
+        this.player.y,
+        pointer.x,
+        pointer.y
+      );
 
-      // Horizontal movement - left/right side of screen
-      if (touchX < width / 2) {
-        this.player.setVelocityX(-moveSpeed);  // Left side = move left
+      // Deadzone: if close enough to finger, stop moving to prevent shaking
+      if (distance < 10) {
+        this.player.setVelocity(0, 0);
       } else {
-        this.player.setVelocityX(moveSpeed);   // Right side = move right
-      }
-
-      // Vertical movement - top/bottom half of screen
-      if (touchY < height / 2) {
-        this.player.setVelocityY(-moveSpeed);  // Top half = move up
-      } else {
-        this.player.setVelocityY(moveSpeed);   // Bottom half = move down
+        // Move player towards the touch position
+        this.physics.moveTo(this.player, pointer.x, pointer.y, moveSpeed);
       }
     } else {
       // Keyboard controls (fallback for desktop)
@@ -220,7 +232,10 @@ export default class GameScene extends Phaser.Scene {
     // Update parallax background - scroll texture instead of moving sprites
     const scrollSpeed = this.baseScrollSpeed * this.speedMultiplier;
     this.bgLayers.forEach(layer => {
-      layer.sprite.tilePositionX += scrollSpeed * layer.scrollFactor;
+      // Only update tilePosition for tileSprites (not regular images like bg_sky)
+      if (layer.sprite.tilePositionX !== undefined && layer.scrollFactor > 0) {
+        layer.sprite.tilePositionX += scrollSpeed * layer.scrollFactor;
+      }
     });
 
     // Aggressive difficulty progression - faster and more frequent
@@ -304,8 +319,8 @@ export default class GameScene extends Phaser.Scene {
 
   createStar(x, y) {
     const star = this.stars.create(x, y, 'pickup_star');
-    // Cap maximum size for desktop (0.15 gives ~50-60px on large screens)
-    const starScale = Math.min(0.25 * this.scaleRatio, 0.15);
+    // Cap maximum size for better visibility on all screens
+    const starScale = Math.min(0.25 * this.scaleRatio, 0.08);
     star.setScale(starScale);
     star.setDepth(100);   // In front of background
 
@@ -325,11 +340,14 @@ export default class GameScene extends Phaser.Scene {
     // Smart spawning in the sky area (top 60% of screen)
     const numEnemies = Phaser.Math.Between(1, 2);  // Reduced from 1-3 to 1-2
     const skyHeight = height * 0.6; // Top 60% is sky
-    const safeZoneHeight = 220;  // Increased from 180 for bigger gaps
+
+    // Dynamic safeZoneHeight based on screen size (responsive for mobile)
+    const safeZoneHeight = Math.max(120, 150 * this.scaleRatio);
     const lanes = Math.floor(skyHeight / safeZoneHeight);
     const occupiedLanes = [];
 
-    for (let i = 0; i < numEnemies && occupiedLanes.length < lanes - 1; i++) {
+    // Fixed loop condition: removed "- 1" to work with small lane counts
+    for (let i = 0; i < numEnemies && occupiedLanes.length < lanes; i++) {
       let lane;
       let attempts = 0;
 
@@ -350,8 +368,8 @@ export default class GameScene extends Phaser.Scene {
 
   createEnemy(x, y, type) {
     const enemy = this.enemies.create(x, y, type);
-    // Cap maximum size for desktop (0.15 gives ~50-60px on large screens)
-    const enemyScale = Math.min(0.25 * this.scaleRatio, 0.15);
+    // Cap maximum size for better visibility on all screens
+    const enemyScale = Math.min(0.25 * this.scaleRatio, 0.08);
     enemy.setScale(enemyScale);
     enemy.setDepth(100);   // In front of background
 
