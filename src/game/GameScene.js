@@ -64,24 +64,24 @@ export default class GameScene extends Phaser.Scene {
     };
     const shipKey = shipImages[this.selectedShip] || 'ship_red';
 
-    // Create player
-    this.player = this.physics.add.sprite(200, height / 2, shipKey);
+    // Create player (positioned in sky area)
+    this.player = this.physics.add.sprite(250, height * 0.4, shipKey);
     this.player.setScale(0.5);
     this.player.setCollideWorldBounds(true);
 
     // Create smoke particle emitter
     this.smokeEmitter = this.add.particles(0, 0, 'particle_smoke', {
-      speed: { min: -100, max: -50 },
+      speed: { min: -80, max: -40 },
       angle: { min: 170, max: 190 },
-      scale: { start: 0.3, end: 0.6 },
-      alpha: { start: 0.7, end: 0 },
-      lifespan: 800,
+      scale: { start: 0.1, end: 0.3 },
+      alpha: { start: 0.5, end: 0 },
+      lifespan: 500,
       blendMode: 'NORMAL',
-      frequency: 30
+      frequency: 50
     });
 
     // Attach emitter to player
-    this.smokeEmitter.startFollow(this.player, -30, 0);
+    this.smokeEmitter.startFollow(this.player, -25, 0);
 
     // Groups
     this.stars = this.physics.add.group();
@@ -130,10 +130,17 @@ export default class GameScene extends Phaser.Scene {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    const layer1 = this.add.tileSprite(0, 0, width, height, key).setOrigin(0, 0);
-    const layer2 = this.add.tileSprite(width, 0, width, height, key).setOrigin(0, 0);
-
-    this.bgLayers.push({ sprites: [layer1, layer2], scrollFactor });
+    // Sky fills entire screen
+    if (key === 'bg_sky') {
+      const layer1 = this.add.tileSprite(0, 0, width, height, key).setOrigin(0, 0);
+      const layer2 = this.add.tileSprite(width, 0, width, height, key).setOrigin(0, 0);
+      this.bgLayers.push({ sprites: [layer1, layer2], scrollFactor });
+    } else {
+      // Other layers align to bottom
+      const layer1 = this.add.tileSprite(0, height, width, height, key).setOrigin(0, 1);
+      const layer2 = this.add.tileSprite(width, height, width, height, key).setOrigin(0, 1);
+      this.bgLayers.push({ sprites: [layer1, layer2], scrollFactor });
+    }
   }
 
   update(time, delta) {
@@ -208,12 +215,15 @@ export default class GameScene extends Phaser.Scene {
     const width = this.scale.width;
     const numStars = Phaser.Math.Between(4, 7);
 
+    // Stars spawn in the sky area (top 70% of screen)
+    const skyHeight = height * 0.7;
+
     // Choose spawn pattern
     const pattern = Phaser.Math.Between(0, 2);
 
     if (pattern === 0) {
       // Arc/wave pattern (like concept art)
-      const centerY = height / 2;
+      const centerY = skyHeight / 2 + 50;
       const arcRadius = 120;
       for (let i = 0; i < numStars; i++) {
         const angle = (Math.PI / (numStars - 1)) * i - Math.PI / 2;
@@ -223,13 +233,13 @@ export default class GameScene extends Phaser.Scene {
       }
     } else if (pattern === 1) {
       // Horizontal line
-      const y = Phaser.Math.Between(100, height - 100);
+      const y = Phaser.Math.Between(100, skyHeight - 50);
       for (let i = 0; i < numStars; i++) {
         this.createStar(width + i * 70, y);
       }
     } else {
       // Vertical wave
-      const startY = Phaser.Math.Between(80, 200);
+      const startY = Phaser.Math.Between(100, 250);
       for (let i = 0; i < numStars; i++) {
         this.createStar(width + i * 60, startY + Math.sin(i * 0.5) * 100);
       }
@@ -246,10 +256,11 @@ export default class GameScene extends Phaser.Scene {
     const height = this.scale.height;
     const width = this.scale.width;
 
-    // Smart spawning - ensure there's always a gap
+    // Smart spawning in the sky area (top 60% of screen)
     const numEnemies = Phaser.Math.Between(1, 3);
-    const safeZoneHeight = 200; // Minimum gap for player
-    const lanes = Math.floor(height / safeZoneHeight);
+    const skyHeight = height * 0.6; // Top 60% is sky
+    const safeZoneHeight = 180;
+    const lanes = Math.floor(skyHeight / safeZoneHeight);
     const occupiedLanes = [];
 
     for (let i = 0; i < numEnemies && occupiedLanes.length < lanes - 1; i++) {
@@ -264,7 +275,7 @@ export default class GameScene extends Phaser.Scene {
 
       if (attempts < 10) {
         occupiedLanes.push(lane);
-        const y = lane * safeZoneHeight + safeZoneHeight / 2;
+        const y = 100 + lane * safeZoneHeight + safeZoneHeight / 2;
         const enemyType = Phaser.Math.Between(0, 1) === 0 ? 'enemy_cloud' : 'enemy_robot';
         this.createEnemy(width + 50, y, enemyType);
       }
