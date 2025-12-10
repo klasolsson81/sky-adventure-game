@@ -181,7 +181,7 @@ function App() {
                         textShadow: '0 0 10px #FFD700'
                       } : {}}
                     >
-                      {entry.name} - {entry.score.toString().padStart(4, '0')}
+                      {entry.name} - {entry.score}
                     </li>
                   );
                 })

@@ -101,7 +101,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Dynamic font size based on scaleRatio
     const fontSize = Math.floor(40 * this.scaleRatio);
-    this.scoreText = this.add.text(65 * this.scaleRatio, 15 * this.scaleRatio, 'Poäng: 0000', {
+    this.scoreText = this.add.text(65 * this.scaleRatio, 15 * this.scaleRatio, 'Poäng: 0', {
       fontFamily: 'Arial Black, sans-serif',
       fontSize: `${fontSize}px`,
       color: '#ffffff',
@@ -304,7 +304,9 @@ export default class GameScene extends Phaser.Scene {
 
   createStar(x, y) {
     const star = this.stars.create(x, y, 'pickup_star');
-    star.setScale(0.25 * this.scaleRatio);  // Responsive scaling
+    // Cap maximum size for desktop (0.15 gives ~50-60px on large screens)
+    const starScale = Math.min(0.25 * this.scaleRatio, 0.15);
+    star.setScale(starScale);
     star.setDepth(100);   // In front of background
 
     // Use circular hitbox for forgiving collection
@@ -348,9 +350,14 @@ export default class GameScene extends Phaser.Scene {
 
   createEnemy(x, y, type) {
     const enemy = this.enemies.create(x, y, type);
-    enemy.setScale(0.25 * this.scaleRatio);  // Responsive scaling
+    // Cap maximum size for desktop (0.15 gives ~50-60px on large screens)
+    const enemyScale = Math.min(0.25 * this.scaleRatio, 0.15);
+    enemy.setScale(enemyScale);
     enemy.setDepth(100);   // In front of background
-    enemy.setBodySize(120 * this.scaleRatio, 80 * this.scaleRatio);  // Scaled hitbox
+
+    // Hitbox size should also be capped
+    const hitboxScale = Math.min(this.scaleRatio, 1.0);
+    enemy.setBodySize(120 * hitboxScale, 80 * hitboxScale);
 
     // Variable speed based on enemy type - creates dynamic difficulty
     if (type === 'enemy_cloud') {
@@ -396,7 +403,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   updateScoreDisplay() {
-    const scoreStr = this.score.toString().padStart(4, '0');
-    this.scoreText.setText('Poäng: ' + scoreStr);
+    this.scoreText.setText('Poäng: ' + this.score);
   }
 }
