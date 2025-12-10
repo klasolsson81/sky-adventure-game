@@ -66,7 +66,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Create player (positioned in sky area)
     this.player = this.physics.add.sprite(250, height * 0.4, shipKey);
-    this.player.setScale(0.65);  // Bigger player for better visibility
+    this.player.setScale(0.7);  // Hero of the screen - make it prominent!
     this.player.setCollideWorldBounds(true);
     this.player.setDepth(100);  // Player in front of background
 
@@ -224,9 +224,9 @@ export default class GameScene extends Phaser.Scene {
       }
     });
 
-    // Move and clean up enemies
+    // Move and clean up enemies - use speedFactor for variable speeds
     this.enemies.children.entries.forEach(enemy => {
-      enemy.x -= scrollSpeed * 1.5;
+      enemy.x -= scrollSpeed * 1.5 * enemy.speedFactor;  // Clouds move faster!
       if (enemy.x < -100) {
         enemy.destroy();
       }
@@ -271,7 +271,7 @@ export default class GameScene extends Phaser.Scene {
 
   createStar(x, y) {
     const star = this.stars.create(x, y, 'pickup_star');
-    star.setScale(0.22);  // Bigger to match larger player (was 0.15)
+    star.setScale(0.1);   // Small collectibles - much smaller!
     star.setDepth(100);   // In front of background
 
     // Use circular hitbox for forgiving collection
@@ -318,6 +318,14 @@ export default class GameScene extends Phaser.Scene {
     enemy.setScale(0.22);  // Bigger to match larger player (was 0.18)
     enemy.setDepth(100);   // In front of background
     enemy.setBodySize(120, 80);  // Set hitbox to match visual size
+
+    // Variable speed based on enemy type - creates dynamic difficulty
+    if (type === 'enemy_cloud') {
+      enemy.speedFactor = 1.5;  // Clouds move 50% faster!
+    } else {
+      enemy.speedFactor = 1.0;  // Robots/barrels move with background
+    }
+
     enemy.setVelocity(0, 0);
   }
 

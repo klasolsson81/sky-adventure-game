@@ -8,13 +8,33 @@ function App() {
   const [score, setScore] = useState(0);
   const [highScores, setHighScores] = useState(() => {
     const saved = localStorage.getItem('skyHighScores');
-    return saved ? JSON.parse(saved) : [];
+    if (!saved) return [];
+
+    try {
+      const parsed = JSON.parse(saved);
+      // Check if old format (array of numbers) - if so, clear it
+      if (parsed.length > 0 && typeof parsed[0] === 'number') {
+        localStorage.removeItem('skyHighScores');
+        return [];
+      }
+      // New format: array of { name, score } objects
+      return parsed;
+    } catch {
+      return [];
+    }
   });
 
   const handleStartClick = () => {
     const audio = new Audio('/audio/sfx_click.mp3');
     audio.play().catch(() => {});
     setGameState('select');
+  };
+
+  const handleShipHover = () => {
+    // Play hover sound (separate instance so it doesn't cut off click)
+    const audio = new Audio('/audio/sfx_click.mp3');
+    audio.volume = 0.3; // Quieter for hover
+    audio.play().catch(() => {});
   };
 
   const handleShipSelect = (ship) => {
@@ -27,10 +47,16 @@ function App() {
   const handleGameOver = (finalScore) => {
     setScore(finalScore);
 
-    // Update high scores
-    const newHighScores = [...highScores, finalScore]
-      .sort((a, b) => b - a)
-      .slice(0, 3);
+    // Capitalize pilot name
+    const pilotName = selectedShip.charAt(0).toUpperCase() + selectedShip.slice(1);
+
+    // Create new score entry
+    const newEntry = { name: pilotName, score: finalScore };
+
+    // Update high scores - Top 10
+    const newHighScores = [...highScores, newEntry]
+      .sort((a, b) => b.score - a.score) // Sort by score descending
+      .slice(0, 10); // Keep top 10
 
     setHighScores(newHighScores);
     localStorage.setItem('skyHighScores', JSON.stringify(newHighScores));
@@ -58,19 +84,28 @@ function App() {
 
       {gameState === 'select' && (
         <div className="select-screen">
-          <h2 className="select-title">Välj ditt skepp</h2>
+          <h2 className="select-title">Välj din pilot</h2>
           <div className="ship-container">
-            <div className="ship-option" onClick={() => handleShipSelect('alexander')}>
+            <div
+              className="ship-option"
+              onClick={() => handleShipSelect('alexander')}
+              onMouseEnter={handleShipHover}
+            >
               <img src="/images/select_frame_alexander.png" alt="Alexander" />
-              <p>Alexander</p>
             </div>
-            <div className="ship-option" onClick={() => handleShipSelect('klas')}>
+            <div
+              className="ship-option"
+              onClick={() => handleShipSelect('klas')}
+              onMouseEnter={handleShipHover}
+            >
               <img src="/images/select_frame_klas.png" alt="Klas" />
-              <p>Klas</p>
             </div>
-            <div className="ship-option" onClick={() => handleShipSelect('bhing')}>
+            <div
+              className="ship-option"
+              onClick={() => handleShipSelect('bhing')}
+              onMouseEnter={handleShipHover}
+            >
               <img src="/images/select_frame_bhing.png" alt="Bhing" />
-              <p>Bhing</p>
             </div>
           </div>
         </div>
@@ -90,12 +125,26 @@ function App() {
             <p className="final-score">Din poäng: {score}</p>
           </div>
           <div className="highscore-display">
-            <h3>Top 3 High Scores</h3>
+            <h3>Top 10 High Scores</h3>
             <ol>
               {highScores.length > 0 ? (
-                highScores.map((hs, idx) => (
-                  <li key={idx}>{hs}</li>
-                ))
+                highScores.map((entry, idx) => {
+                  // Highlight current player's score
+                  const isCurrentScore = entry.score === score &&
+                                        entry.name.toLowerCase() === selectedShip;
+                  return (
+                    <li
+                      key={idx}
+                      style={isCurrentScore ? {
+                        color: '#FFD700',
+                        fontWeight: 'bold',
+                        textShadow: '0 0 10px #FFD700'
+                      } : {}}
+                    >
+                      {entry.name} - {entry.score.toString().padStart(4, '0')}
+                    </li>
+                  );
+                })
               ) : (
                 <li>Inga rekord än</li>
               )}
