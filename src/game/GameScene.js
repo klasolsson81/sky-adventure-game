@@ -138,13 +138,19 @@ export default class GameScene extends Phaser.Scene {
 
     // Create ONE tileSprite that spans the full game width
     // Height is the texture's native height
-    const sprite = this.add.tileSprite(0, 0, gameWidth, texHeight, key);
+    const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, texHeight, key);
 
-    sprite.setOrigin(0, anchorBottom ? 1 : 0); // Anchor to bottom-left if ground/hills
-    sprite.setPosition(0, anchorBottom ? gameHeight : 0); // Position at bottom of screen
+    if (anchorBottom) {
+      sprite.setOrigin(0.5, 1); // Anchor bottom-center
+      sprite.setPosition(gameWidth / 2, gameHeight); // Stick to bottom
+    } else {
+      sprite.setOrigin(0.5, 0); // Anchor top-center (for sky)
+      sprite.setPosition(gameWidth / 2, 0);
+    }
+
     sprite.setScrollFactor(0); // Fix to camera
     sprite.setScale(scale); // Scale it down
-    sprite.setDepth(this.bgLayers.length); // Auto-depth based on order
+    sprite.setDepth(this.bgLayers.length); // Auto-depth
 
     // Store for update loop
     this.bgLayers.push({ sprite, scrollFactor });
