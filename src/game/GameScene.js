@@ -122,8 +122,9 @@ export default class GameScene extends Phaser.Scene {
     this.enemySpawnTimer = 0;
     this.difficultyTimer = 0;
 
-    this.starSpawnInterval = 2500;
-    this.enemySpawnInterval = 2000;
+    // Longer intervals to prevent "wall of death"
+    this.starSpawnInterval = 3500;   // Increased from 2500
+    this.enemySpawnInterval = 3000;  // Increased from 2000
   }
 
   createParallaxLayer(key, scrollFactor) {
@@ -213,7 +214,7 @@ export default class GameScene extends Phaser.Scene {
   spawnStarWave() {
     const height = this.scale.height;
     const width = this.scale.width;
-    const numStars = Phaser.Math.Between(4, 7);
+    const numStars = Phaser.Math.Between(3, 5);  // Reduced from 4-7 to 3-5
 
     // Stars spawn in the sky area (top 70% of screen)
     const skyHeight = height * 0.7;
@@ -224,31 +225,32 @@ export default class GameScene extends Phaser.Scene {
     if (pattern === 0) {
       // Arc/wave pattern (like concept art)
       const centerY = skyHeight / 2 + 50;
-      const arcRadius = 120;
+      const arcRadius = 150;  // Increased for wider spread
       for (let i = 0; i < numStars; i++) {
         const angle = (Math.PI / (numStars - 1)) * i - Math.PI / 2;
-        const x = width + i * 60;
+        const x = width + i * 100;  // Increased spacing from 60 to 100
         const y = centerY + Math.sin(angle) * arcRadius;
         this.createStar(x, y);
       }
     } else if (pattern === 1) {
-      // Horizontal line
+      // Horizontal line with more spacing
       const y = Phaser.Math.Between(100, skyHeight - 50);
       for (let i = 0; i < numStars; i++) {
-        this.createStar(width + i * 70, y);
+        this.createStar(width + i * 120, y);  // Increased spacing from 70 to 120
       }
     } else {
-      // Vertical wave
+      // Vertical wave with more spacing
       const startY = Phaser.Math.Between(100, 250);
       for (let i = 0; i < numStars; i++) {
-        this.createStar(width + i * 60, startY + Math.sin(i * 0.5) * 100);
+        this.createStar(width + i * 100, startY + Math.sin(i * 0.5) * 120);  // Increased spacing
       }
     }
   }
 
   createStar(x, y) {
     const star = this.stars.create(x, y, 'pickup_star');
-    star.setScale(0.4);
+    star.setScale(0.15);  // Much smaller - 15% of original
+    star.setCircle(30);   // Set circular hitbox to match visual size
     star.setVelocity(0, 0);
   }
 
@@ -257,9 +259,9 @@ export default class GameScene extends Phaser.Scene {
     const width = this.scale.width;
 
     // Smart spawning in the sky area (top 60% of screen)
-    const numEnemies = Phaser.Math.Between(1, 3);
+    const numEnemies = Phaser.Math.Between(1, 2);  // Reduced from 1-3 to 1-2
     const skyHeight = height * 0.6; // Top 60% is sky
-    const safeZoneHeight = 180;
+    const safeZoneHeight = 220;  // Increased from 180 for bigger gaps
     const lanes = Math.floor(skyHeight / safeZoneHeight);
     const occupiedLanes = [];
 
@@ -284,7 +286,8 @@ export default class GameScene extends Phaser.Scene {
 
   createEnemy(x, y, type) {
     const enemy = this.enemies.create(x, y, type);
-    enemy.setScale(0.5);
+    enemy.setScale(0.18);  // Much smaller - 18% of original
+    enemy.setBodySize(120, 80);  // Set hitbox to match visual size
     enemy.setVelocity(0, 0);
   }
 
