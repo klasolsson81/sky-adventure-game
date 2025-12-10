@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GameComponent from './components/GameComponent';
 import './index.css';
 
@@ -6,6 +6,7 @@ function App() {
   const [gameState, setGameState] = useState('menu'); // menu, select, playing, gameover
   const [selectedShip, setSelectedShip] = useState(null);
   const [score, setScore] = useState(0);
+  const [isPortrait, setIsPortrait] = useState(false);
   const [highScores, setHighScores] = useState(() => {
     const saved = localStorage.getItem('skyHighScores');
     if (!saved) return [];
@@ -24,10 +25,35 @@ function App() {
     }
   });
 
+  // Detect orientation changes
+  useEffect(() => {
+    const checkOrientation = () => {
+      setIsPortrait(window.innerHeight > window.innerWidth);
+    };
+
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+
+    return () => {
+      window.removeEventListener('resize', checkOrientation);
+      window.removeEventListener('orientationchange', checkOrientation);
+    };
+  }, []);
+
   const handleStartClick = () => {
     const audio = new Audio('/audio/sfx_click.mp3');
     audio.play().catch(() => {});
     setGameState('select');
+  };
+
+  const handleFullscreen = () => {
+    const audio = new Audio('/audio/sfx_click.mp3');
+    audio.play().catch(() => {});
+
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
   };
 
   const handleShipHover = () => {
@@ -73,11 +99,25 @@ function App() {
 
   return (
     <div className="app">
+      {/* Portrait Mode Overlay - Force Landscape */}
+      {isPortrait && (
+        <div className="rotate-overlay">
+          <div className="rotate-content">
+            <div className="rotate-icon">📱 ↻</div>
+            <h2>Vänligen rotera telefonen</h2>
+            <p>Spelet spelas bäst i liggande läge</p>
+          </div>
+        </div>
+      )}
+
       {gameState === 'menu' && (
         <div className="menu-screen">
           <h1 className="game-title">Sky High Adventures</h1>
           <button className="start-button" onClick={handleStartClick}>
             Starta Spel
+          </button>
+          <button className="fullscreen-button" onClick={handleFullscreen}>
+            🖵 Helskärm
           </button>
         </div>
       )}

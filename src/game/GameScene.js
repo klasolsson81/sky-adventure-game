@@ -166,22 +166,47 @@ export default class GameScene extends Phaser.Scene {
   update(time, delta) {
     if (this.isGameOver) return;
 
-    // Player movement
+    const width = this.scale.width;
+    const height = this.scale.height;
     const moveSpeed = 300;
-    if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-moveSpeed);
-    } else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(moveSpeed);
-    } else {
-      this.player.setVelocityX(0);
-    }
 
-    if (this.cursors.up.isDown) {
-      this.player.setVelocityY(-moveSpeed);
-    } else if (this.cursors.down.isDown) {
-      this.player.setVelocityY(moveSpeed);
+    // Touch controls for mobile
+    const pointer = this.input.activePointer;
+    if (pointer.isDown) {
+      // Touch is active - use touch position for movement
+      const touchX = pointer.x;
+      const touchY = pointer.y;
+
+      // Horizontal movement - left/right side of screen
+      if (touchX < width / 2) {
+        this.player.setVelocityX(-moveSpeed);  // Left side = move left
+      } else {
+        this.player.setVelocityX(moveSpeed);   // Right side = move right
+      }
+
+      // Vertical movement - top/bottom half of screen
+      if (touchY < height / 2) {
+        this.player.setVelocityY(-moveSpeed);  // Top half = move up
+      } else {
+        this.player.setVelocityY(moveSpeed);   // Bottom half = move down
+      }
     } else {
-      this.player.setVelocityY(0);
+      // Keyboard controls (fallback for desktop)
+      if (this.cursors.left.isDown) {
+        this.player.setVelocityX(-moveSpeed);
+      } else if (this.cursors.right.isDown) {
+        this.player.setVelocityX(moveSpeed);
+      } else {
+        this.player.setVelocityX(0);
+      }
+
+      if (this.cursors.up.isDown) {
+        this.player.setVelocityY(-moveSpeed);
+      } else if (this.cursors.down.isDown) {
+        this.player.setVelocityY(moveSpeed);
+      } else {
+        this.player.setVelocityY(0);
+      }
     }
 
     // Update parallax background - scroll texture instead of moving sprites

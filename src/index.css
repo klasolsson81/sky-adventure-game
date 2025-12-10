@@ -203,6 +203,79 @@ body {
   box-shadow: 0 2px 0 #0D47A1, 0 4px 10px rgba(0,0,0,0.3);
 }
 
+/* Rotation Overlay - Force Landscape */
+.rotate-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.rotate-content {
+  text-align: center;
+  color: white;
+  padding: 2rem;
+}
+
+.rotate-icon {
+  font-size: 6rem;
+  margin-bottom: 1rem;
+  animation: rotatePhone 2s infinite ease-in-out;
+}
+
+.rotate-content h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.rotate-content p {
+  font-size: 1.2rem;
+  color: #ccc;
+}
+
+@keyframes rotatePhone {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(90deg);
+  }
+}
+
+/* Fullscreen Button */
+.fullscreen-button {
+  background: linear-gradient(to bottom, #FF6B35, #F45425);
+  color: white;
+  font-size: 1.3rem;
+  font-weight: bold;
+  padding: 1rem 2rem;
+  border: 3px solid #D93D00;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #D93D00, 0 10px 20px rgba(0,0,0,0.3);
+  transition: all 0.1s;
+  text-transform: uppercase;
+  margin-top: 1.5rem;
+}
+
+.fullscreen-button:hover {
+  transform: translateY(2px);
+  box-shadow: 0 4px 0 #D93D00, 0 8px 15px rgba(0,0,0,0.3);
+}
+
+.fullscreen-button:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #D93D00, 0 4px 10px rgba(0,0,0,0.3);
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {
