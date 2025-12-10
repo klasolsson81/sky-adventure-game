@@ -52,9 +52,14 @@ export default class GameScene extends Phaser.Scene {
     // Dynamic scale ratio based on screen height (baseline: 1080px)
     this.scaleRatio = height / 1080;
 
+    // Set camera background to sky blue (prevents sub-pixel artifacts)
+    this.cameras.main.setBackgroundColor('#87CEEB');
+
     // Create sky background FIRST - as stretched image (no tiling)
     const sky = this.add.image(width / 2, height / 2, 'bg_sky');
-    sky.setDisplaySize(width, height);  // Stretch to fill entire screen
+    sky.setOrigin(0.5, 0.5);  // Center origin
+    // Bleed over edges slightly to eliminate any sub-pixel seams
+    sky.setDisplaySize(width * 1.02, height * 1.02);
     sky.setScrollFactor(0);  // Lock in place
     sky.setDepth(0);  // Behind everything
 
