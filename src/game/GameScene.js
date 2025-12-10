@@ -49,6 +49,9 @@ export default class GameScene extends Phaser.Scene {
     this.speedMultiplier = 1;
     this.baseScrollSpeed = 2;
 
+    // Dynamic scale ratio based on screen height (baseline: 1080px)
+    this.scaleRatio = height / 1080;
+
     // Create parallax background (4 layers) - using single sprite per layer
     this.bgLayers = [];
     this.createParallaxLayer('bg_sky', 0, 1, false);           // Sky fills screen, no scroll
@@ -66,7 +69,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Create player (positioned in sky area)
     this.player = this.physics.add.sprite(250, height * 0.4, shipKey);
-    this.player.setScale(0.6);  // Balanced for 1280x720 base resolution
+    this.player.setScale(0.7 * this.scaleRatio);  // Responsive scaling
     this.player.setCollideWorldBounds(true);
     this.player.setDepth(100);  // Player in front of background
 
@@ -83,27 +86,27 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // Attach emitter to player's tail - larger offset for proper tail placement
-    this.smokeEmitter.startFollow(this.player, -120, 10);
+    this.smokeEmitter.startFollow(this.player, -120 * this.scaleRatio, 10 * this.scaleRatio);
     this.smokeEmitter.setDepth(this.player.depth - 1);  // Smoke strictly behind player
 
     // Groups
     this.stars = this.physics.add.group();
     this.enemies = this.physics.add.group();
 
-    // Score display (top left with star icon) - dynamically sized for mobile
-    const starIcon = this.add.image(30, 30, 'pickup_star');
-    starIcon.setScale(0.12);  // Smaller for mobile (was 0.15)
+    // Score display (top left with star icon) - responsive scaling
+    const starIcon = this.add.image(30 * this.scaleRatio, 30 * this.scaleRatio, 'pickup_star');
+    starIcon.setScale(0.15 * this.scaleRatio);  // Responsive scaling
     starIcon.setScrollFactor(0);
     starIcon.setDepth(1000);
 
-    // Dynamic font size based on screen height (5% of height)
-    const fontSize = Math.floor(height * 0.05);
-    this.scoreText = this.add.text(65, 15, 'Poäng: 0000', {
+    // Dynamic font size based on scaleRatio
+    const fontSize = Math.floor(40 * this.scaleRatio);
+    this.scoreText = this.add.text(65 * this.scaleRatio, 15 * this.scaleRatio, 'Poäng: 0000', {
       fontFamily: 'Arial Black, sans-serif',
-      fontSize: `${fontSize}px`,  // Dynamic sizing!
+      fontSize: `${fontSize}px`,
       color: '#ffffff',
       stroke: '#000000',
-      strokeThickness: 4
+      strokeThickness: Math.max(2, Math.floor(4 * this.scaleRatio))
     });
     this.scoreText.setScrollFactor(0);
     this.scoreText.setDepth(1000);
@@ -138,8 +141,11 @@ export default class GameScene extends Phaser.Scene {
     const gameWidth = this.scale.width;
     const gameHeight = this.scale.height;
 
+    // Apply responsive scaling
+    const responsiveScale = scale * this.scaleRatio;
+
     // Calculate the physical height this layer should occupy
-    const targetHeight = texHeight * scale;
+    const targetHeight = texHeight * responsiveScale;
 
     // Create a tileSprite that fills the FULL width, but has the scaled-down height
     const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, targetHeight, key);
@@ -157,7 +163,7 @@ export default class GameScene extends Phaser.Scene {
     sprite.setScrollFactor(0); // Fix to camera
 
     // CRITICAL FIX: Scale the texture pattern, NOT the sprite object
-    sprite.setTileScale(scale, scale);
+    sprite.setTileScale(responsiveScale, responsiveScale);
 
     sprite.setDepth(this.bgLayers.length);
 
@@ -298,7 +304,7 @@ export default class GameScene extends Phaser.Scene {
 
   createStar(x, y) {
     const star = this.stars.create(x, y, 'pickup_star');
-    star.setScale(0.18);  // Properly sized for 1280x720 (was 0.1 - too small)
+    star.setScale(0.25 * this.scaleRatio);  // Responsive scaling
     star.setDepth(100);   // In front of background
 
     // Use circular hitbox for forgiving collection
@@ -342,9 +348,9 @@ export default class GameScene extends Phaser.Scene {
 
   createEnemy(x, y, type) {
     const enemy = this.enemies.create(x, y, type);
-    enemy.setScale(0.18);  // Properly sized for 1280x720 (was 0.22)
+    enemy.setScale(0.25 * this.scaleRatio);  // Responsive scaling
     enemy.setDepth(100);   // In front of background
-    enemy.setBodySize(120, 80);  // Set hitbox to match visual size
+    enemy.setBodySize(120 * this.scaleRatio, 80 * this.scaleRatio);  // Scaled hitbox
 
     // Variable speed based on enemy type - creates dynamic difficulty
     if (type === 'enemy_cloud') {
@@ -377,7 +383,7 @@ export default class GameScene extends Phaser.Scene {
     this.sound.play('sfx_explosion', { volume: 0.6 });
 
     const explosion = this.add.sprite(player.x, player.y, 'explosion');
-    explosion.setScale(1.5);
+    explosion.setScale(1.5 * this.scaleRatio);
 
     player.setVisible(false);
 

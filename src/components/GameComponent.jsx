@@ -13,10 +13,10 @@ function GameComponent({ selectedShip, onGameOver }) {
       type: Phaser.AUTO,
       parent: gameRef.current,
       scale: {
-        mode: Phaser.Scale.FIT,  // Scales game to fit screen while keeping aspect ratio
+        mode: Phaser.Scale.RESIZE,  // Responsive full-screen mode
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 1280,   // Base Design Width (HD resolution)
-        height: 720,   // Base Design Height (HD resolution)
+        width: window.innerWidth,
+        height: window.innerHeight,
       },
       physics: {
         default: 'arcade',
