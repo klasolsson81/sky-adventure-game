@@ -90,18 +90,18 @@ export default class GameScene extends Phaser.Scene {
     this.stars = this.physics.add.group();
     this.enemies = this.physics.add.group();
 
-    // Score display (top left with star icon)
-    const starIcon = this.add.image(50, 50, 'pickup_star');
-    starIcon.setScale(0.5);
+    // Score display (top left with star icon) - smaller and better positioned
+    const starIcon = this.add.image(30, 30, 'pickup_star');
+    starIcon.setScale(0.3);  // Much smaller
     starIcon.setScrollFactor(0);
     starIcon.setDepth(1000);
 
-    this.scoreText = this.add.text(90, 30, '0000', {
+    this.scoreText = this.add.text(65, 15, 'Poäng: 0000', {
       fontFamily: 'Arial Black, sans-serif',
-      fontSize: '48px',
+      fontSize: '32px',
       color: '#ffffff',
       stroke: '#000000',
-      strokeThickness: 6
+      strokeThickness: 4
     });
     this.scoreText.setScrollFactor(0);
     this.scoreText.setDepth(1000);
@@ -143,6 +143,15 @@ export default class GameScene extends Phaser.Scene {
     };
     const depth = depthMap[key] || 0;
 
+    // Set scale for each layer to control size
+    const scaleMap = {
+      'bg_sky': 1,         // Sky fills entire screen
+      'bg_mountains': 0.5, // Mountains smaller
+      'bg_hills': 0.4,     // Hills much smaller
+      'bg_ground': 0.3     // Ground thin strip at bottom (10-15% of screen)
+    };
+    const layerScale = scaleMap[key] || 1;
+
     // Get actual texture height to prevent stretching
     const tex = this.textures.get(key);
     const texHeight = tex.getSourceImage().height;
@@ -153,9 +162,15 @@ export default class GameScene extends Phaser.Scene {
       const layer2 = this.add.tileSprite(width, 0, width, height, key).setOrigin(0, 0).setDepth(depth);
       this.bgLayers.push({ sprites: [layer1, layer2], scrollFactor });
     } else {
-      // Other layers align to bottom using actual texture height (no stretching)
-      const layer1 = this.add.tileSprite(0, height, width, texHeight, key).setOrigin(0, 1).setDepth(depth);
-      const layer2 = this.add.tileSprite(width, height, width, texHeight, key).setOrigin(0, 1).setDepth(depth);
+      // Other layers scaled down and aligned to bottom
+      const layer1 = this.add.tileSprite(0, height, width, texHeight, key)
+        .setOrigin(0, 1)
+        .setScale(layerScale)
+        .setDepth(depth);
+      const layer2 = this.add.tileSprite(width, height, width, texHeight, key)
+        .setOrigin(0, 1)
+        .setScale(layerScale)
+        .setDepth(depth);
       this.bgLayers.push({ sprites: [layer1, layer2], scrollFactor });
     }
   }
@@ -350,6 +365,6 @@ export default class GameScene extends Phaser.Scene {
 
   updateScoreDisplay() {
     const scoreStr = this.score.toString().padStart(4, '0');
-    this.scoreText.setText(scoreStr);
+    this.scoreText.setText('Poäng: ' + scoreStr);
   }
 }

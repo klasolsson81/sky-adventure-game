@@ -11,20 +11,20 @@ function GameComponent({ selectedShip, onGameOver }) {
 
     const config = {
       type: Phaser.AUTO,
-      width: 1600,
-      height: 900,
+      width: window.innerWidth,
+      height: window.innerHeight,
       parent: gameRef.current,
       scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 1600,
-        height: 900
+        width: window.innerWidth,
+        height: window.innerHeight
       },
       physics: {
         default: 'arcade',
         arcade: {
           gravity: { y: 0 },
-          debug: true  // Enable to see green hitboxes for verification
+          debug: false  // Disabled - no more ugly hitboxes
         }
       },
       scene: GameScene,
