@@ -1,13 +1,70 @@
 <!doctype html>
-<html lang="en">
+<html lang="sv">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sky-adventure-game</title>
+
+    <!-- Favicon - Star icon in browser tab -->
+    <link rel="icon" type="image/png" href="/images/pickup_star.png" />
+
+    <!-- Mobile Optimization - Prevent zooming for app-like feel -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#87CEEB" />
+
+    <!-- SEO Meta Tags -->
+    <title>Sky High Adventures - Familjens Flygspel</title>
+    <meta name="description" content="Hjälp Alexander, Klas och Bhing att flyga högt! Ett fartfyllt äventyr där du samlar stjärnor och undviker hinder. Spela gratis i webbläsaren." />
+    <meta name="keywords" content="flygspel, barnspel, react, phaser, familjespel, webbspel" />
+    <meta name="author" content="Klas Olsson" />
+
+    <!-- Open Graph / Facebook / Discord / LinkedIn -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://skyadventuregame.klasolsson.se" />
+    <meta property="og:title" content="Sky High Adventures ✈️⭐" />
+    <meta property="og:description" content="Välj din pilot och slå rekordet! Klarar du dig förbi molnen?" />
+    <meta property="og:image" content="https://skyadventuregame.klasolsson.se/og-image.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://skyadventuregame.klasolsson.se" />
+    <meta name="twitter:title" content="Sky High Adventures ✈️⭐" />
+    <meta name="twitter:description" content="Välj din pilot och slå rekordet! Klarar du dig förbi molnen?" />
+    <meta name="twitter:image" content="https://skyadventuregame.klasolsson.se/og-image.png" />
+
+    <!-- Prevent white flash before React loads -->
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #87CEEB;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      #root {
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* Loading indicator while app initializes */
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: white;
+        font-size: 24px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="loading">Laddar Sky High Adventures...</div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
