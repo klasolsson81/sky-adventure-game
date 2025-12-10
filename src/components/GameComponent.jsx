@@ -11,20 +11,18 @@ function GameComponent({ selectedShip, onGameOver }) {
 
     const config = {
       type: Phaser.AUTO,
-      width: window.innerWidth,
-      height: window.innerHeight,
       parent: gameRef.current,
       scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.FIT,  // Scales game to fit screen while keeping aspect ratio
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: window.innerWidth,
-        height: window.innerHeight
+        width: 1280,   // Base Design Width (HD resolution)
+        height: 720,   // Base Design Height (HD resolution)
       },
       physics: {
         default: 'arcade',
         arcade: {
           gravity: { y: 0 },
-          debug: false  // Disabled - no more ugly hitboxes
+          debug: false
         }
       },
       scene: GameScene,

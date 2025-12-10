@@ -66,7 +66,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Create player (positioned in sky area)
     this.player = this.physics.add.sprite(250, height * 0.4, shipKey);
-    this.player.setScale(0.7);  // Hero of the screen - make it prominent!
+    this.player.setScale(0.6);  // Balanced for 1280x720 base resolution
     this.player.setCollideWorldBounds(true);
     this.player.setDepth(100);  // Player in front of background
 
@@ -90,15 +90,17 @@ export default class GameScene extends Phaser.Scene {
     this.stars = this.physics.add.group();
     this.enemies = this.physics.add.group();
 
-    // Score display (top left with star icon) - smaller and better positioned
+    // Score display (top left with star icon) - dynamically sized for mobile
     const starIcon = this.add.image(30, 30, 'pickup_star');
-    starIcon.setScale(0.15);  // Even smaller UI icon
+    starIcon.setScale(0.12);  // Smaller for mobile (was 0.15)
     starIcon.setScrollFactor(0);
     starIcon.setDepth(1000);
 
+    // Dynamic font size based on screen height (5% of height)
+    const fontSize = Math.floor(height * 0.05);
     this.scoreText = this.add.text(65, 15, 'Poäng: 0000', {
       fontFamily: 'Arial Black, sans-serif',
-      fontSize: '32px',
+      fontSize: `${fontSize}px`,  // Dynamic sizing!
       color: '#ffffff',
       stroke: '#000000',
       strokeThickness: 4
@@ -296,7 +298,7 @@ export default class GameScene extends Phaser.Scene {
 
   createStar(x, y) {
     const star = this.stars.create(x, y, 'pickup_star');
-    star.setScale(0.1);   // Small collectibles - much smaller!
+    star.setScale(0.18);  // Properly sized for 1280x720 (was 0.1 - too small)
     star.setDepth(100);   // In front of background
 
     // Use circular hitbox for forgiving collection
@@ -340,7 +342,7 @@ export default class GameScene extends Phaser.Scene {
 
   createEnemy(x, y, type) {
     const enemy = this.enemies.create(x, y, type);
-    enemy.setScale(0.22);  // Bigger to match larger player (was 0.18)
+    enemy.setScale(0.18);  // Properly sized for 1280x720 (was 0.22)
     enemy.setDepth(100);   // In front of background
     enemy.setBodySize(120, 80);  // Set hitbox to match visual size
 
