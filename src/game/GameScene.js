@@ -52,7 +52,7 @@ export default class GameScene extends Phaser.Scene {
     // Create parallax background (4 layers) - using single sprite per layer
     this.bgLayers = [];
     this.createParallaxLayer('bg_sky', 0, 1, false);           // Sky fills screen, no scroll
-    this.createParallaxLayer('bg_mountains', 0.2, 0.5, true);  // Mountains slow scroll
+    this.createParallaxLayer('bg_mountains', 0.2, 0.6, true);  // Mountains bigger - peek above hills
     this.createParallaxLayer('bg_hills', 0.5, 0.4, true);      // Hills medium scroll
     this.createParallaxLayer('bg_ground', 1.0, 0.25, true);    // Ground fast scroll, thin strip
 
@@ -66,7 +66,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Create player (positioned in sky area)
     this.player = this.physics.add.sprite(250, height * 0.4, shipKey);
-    this.player.setScale(0.5);
+    this.player.setScale(0.65);  // Bigger player for better visibility
     this.player.setCollideWorldBounds(true);
     this.player.setDepth(100);  // Player in front of background
 
@@ -82,9 +82,9 @@ export default class GameScene extends Phaser.Scene {
       quantity: 1  // Emit fewer particles for cleaner look
     });
 
-    // Attach emitter to player's tail - hardcoded offset to ensure it's behind
-    this.smokeEmitter.startFollow(this.player, -80, 10);
-    this.smokeEmitter.setDepth(50);  // Smoke behind player but in front of background
+    // Attach emitter to player's tail - larger offset for proper tail placement
+    this.smokeEmitter.startFollow(this.player, -120, 10);
+    this.smokeEmitter.setDepth(this.player.depth - 1);  // Smoke strictly behind player
 
     // Groups
     this.stars = this.physics.add.group();
@@ -92,7 +92,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Score display (top left with star icon) - smaller and better positioned
     const starIcon = this.add.image(30, 30, 'pickup_star');
-    starIcon.setScale(0.3);  // Much smaller
+    starIcon.setScale(0.15);  // Even smaller UI icon
     starIcon.setScrollFactor(0);
     starIcon.setDepth(1000);
 
@@ -125,9 +125,9 @@ export default class GameScene extends Phaser.Scene {
     this.enemySpawnTimer = 0;
     this.difficultyTimer = 0;
 
-    // Longer intervals to prevent "wall of death"
-    this.starSpawnInterval = 3500;   // Increased from 2500
-    this.enemySpawnInterval = 3000;  // Increased from 2000
+    // Base spawn intervals (will decrease with speedMultiplier)
+    this.baseStarSpawnInterval = 3500;
+    this.baseEnemySpawnInterval = 3000;
   }
 
   createParallaxLayer(key, scrollFactor, scale, anchorBottom = true) {
@@ -190,23 +190,28 @@ export default class GameScene extends Phaser.Scene {
       layer.sprite.tilePositionX += scrollSpeed * layer.scrollFactor;
     });
 
-    // Increase difficulty over time
+    // Aggressive difficulty progression - faster and more frequent
     this.difficultyTimer += delta;
-    if (this.difficultyTimer > 5000) {
-      this.speedMultiplier += 0.05;
+    if (this.difficultyTimer > 3000) {  // Every 3 seconds (was 5000)
+      this.speedMultiplier += 0.1;       // Bigger jumps (was 0.05)
       this.difficultyTimer = 0;
     }
 
+    // Dynamic spawn intervals based on speedMultiplier
+    // As speed increases, spawns happen more frequently!
+    const currentStarInterval = this.baseStarSpawnInterval / this.speedMultiplier;
+    const currentEnemyInterval = this.baseEnemySpawnInterval / this.speedMultiplier;
+
     // Spawn stars
     this.starSpawnTimer += delta;
-    if (this.starSpawnTimer > this.starSpawnInterval) {
+    if (this.starSpawnTimer > currentStarInterval) {
       this.spawnStarWave();
       this.starSpawnTimer = 0;
     }
 
     // Spawn enemies
     this.enemySpawnTimer += delta;
-    if (this.enemySpawnTimer > this.enemySpawnInterval) {
+    if (this.enemySpawnTimer > currentEnemyInterval) {
       this.spawnEnemies();
       this.enemySpawnTimer = 0;
     }
@@ -266,7 +271,7 @@ export default class GameScene extends Phaser.Scene {
 
   createStar(x, y) {
     const star = this.stars.create(x, y, 'pickup_star');
-    star.setScale(0.15);  // Scale down to 15%
+    star.setScale(0.22);  // Bigger to match larger player (was 0.15)
     star.setDepth(100);   // In front of background
 
     // Use circular hitbox for forgiving collection
@@ -310,7 +315,7 @@ export default class GameScene extends Phaser.Scene {
 
   createEnemy(x, y, type) {
     const enemy = this.enemies.create(x, y, type);
-    enemy.setScale(0.18);  // Much smaller - 18% of original
+    enemy.setScale(0.22);  // Bigger to match larger player (was 0.18)
     enemy.setDepth(100);   // In front of background
     enemy.setBodySize(120, 80);  // Set hitbox to match visual size
     enemy.setVelocity(0, 0);
