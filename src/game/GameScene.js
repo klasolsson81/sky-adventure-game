@@ -52,9 +52,14 @@ export default class GameScene extends Phaser.Scene {
     // Dynamic scale ratio based on screen height (baseline: 1080px)
     this.scaleRatio = height / 1080;
 
-    // Create parallax background (4 layers) - using single sprite per layer
+    // Create sky background FIRST - as stretched image (no tiling)
+    const sky = this.add.image(width / 2, height / 2, 'bg_sky');
+    sky.setDisplaySize(width, height);  // Stretch to fill entire screen
+    sky.setScrollFactor(0);  // Lock in place
+    sky.setDepth(0);  // Behind everything
+
+    // Create parallax background (3 layers) - using single sprite per layer
     this.bgLayers = [];
-    this.createParallaxLayer('bg_sky', 0, 1, false);           // Sky fills screen, no scroll
     this.createParallaxLayer('bg_mountains', 0.2, 0.6, true);  // Mountains bigger - peek above hills
     this.createParallaxLayer('bg_hills', 0.5, 0.4, true);      // Hills medium scroll
     this.createParallaxLayer('bg_ground', 1.0, 0.25, true);    // Ground fast scroll, thin strip
@@ -139,20 +144,7 @@ export default class GameScene extends Phaser.Scene {
     const gameWidth = this.scale.width;
     const gameHeight = this.scale.height;
 
-    // SPECIAL CASE: bg_sky should be a stretched image, not a tileSprite
-    if (key === 'bg_sky') {
-      const sprite = this.add.image(gameWidth / 2, gameHeight / 2, key);
-      sprite.setOrigin(0.5, 0.5); // Center origin
-      sprite.setDisplaySize(gameWidth, gameHeight); // Stretch to fill screen
-      sprite.setScrollFactor(0); // Fix to camera
-      sprite.setDepth(this.bgLayers.length);
-
-      // Store for update loop (no scrolling for sky)
-      this.bgLayers.push({ sprite, scrollFactor: 0 });
-      return;
-    }
-
-    // For all other layers: use tileSprite for seamless scrolling
+    // Use tileSprite for seamless scrolling backgrounds
     const tex = this.textures.get(key);
     const texHeight = tex.getSourceImage().height;
 
@@ -176,10 +168,10 @@ export default class GameScene extends Phaser.Scene {
 
     sprite.setScrollFactor(0); // Fix to camera
 
-    // CRITICAL FIX: Scale the texture pattern, NOT the sprite object
+    // Scale the texture pattern, NOT the sprite object
     sprite.setTileScale(responsiveScale, responsiveScale);
 
-    sprite.setDepth(this.bgLayers.length);
+    sprite.setDepth(this.bgLayers.length + 1);  // Start at depth 1 (sky is at 0)
 
     // Store for update loop
     this.bgLayers.push({ sprite, scrollFactor });
@@ -319,8 +311,10 @@ export default class GameScene extends Phaser.Scene {
 
   createStar(x, y) {
     const star = this.stars.create(x, y, 'pickup_star');
-    // Cap maximum size for better visibility on all screens
-    const starScale = Math.min(0.25 * this.scaleRatio, 0.08);
+
+    // Responsive sizing: larger on PC, smaller on mobile
+    const maxScale = this.scale.width > 768 ? 0.18 : 0.08;  // PC vs Mobile
+    const starScale = Math.min(0.25 * this.scaleRatio, maxScale);
     star.setScale(starScale);
     star.setDepth(100);   // In front of background
 
@@ -368,13 +362,16 @@ export default class GameScene extends Phaser.Scene {
 
   createEnemy(x, y, type) {
     const enemy = this.enemies.create(x, y, type);
-    // Cap maximum size for better visibility on all screens
-    const enemyScale = Math.min(0.25 * this.scaleRatio, 0.08);
+
+    // Responsive sizing: larger on PC, smaller on mobile
+    const maxScale = this.scale.width > 768 ? 0.18 : 0.08;  // PC vs Mobile
+    const enemyScale = Math.min(0.25 * this.scaleRatio, maxScale);
     enemy.setScale(enemyScale);
     enemy.setDepth(100);   // In front of background
 
-    // Hitbox size should also be capped
-    const hitboxScale = Math.min(this.scaleRatio, 1.0);
+    // Hitbox size should also be responsive
+    const maxHitboxScale = this.scale.width > 768 ? 1.2 : 0.8;
+    const hitboxScale = Math.min(this.scaleRatio, maxHitboxScale);
     enemy.setBodySize(120 * hitboxScale, 80 * hitboxScale);
 
     // Variable speed based on enemy type - creates dynamic difficulty
