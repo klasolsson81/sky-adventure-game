@@ -65,8 +65,8 @@ export default class GameScene extends Phaser.Scene {
     const shipKey = shipImages[this.selectedShip] || 'ship_red';
 
     // Create player
-    this.player = this.physics.add.sprite(150, height / 2, shipKey);
-    this.player.setScale(0.6);
+    this.player = this.physics.add.sprite(200, height / 2, shipKey);
+    this.player.setScale(0.5);
     this.player.setCollideWorldBounds(true);
 
     // Create smoke particle emitter
@@ -88,14 +88,14 @@ export default class GameScene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
 
     // Score display (top left with star icon)
-    const starIcon = this.add.image(40, 40, 'pickup_star');
-    starIcon.setScale(0.8);
+    const starIcon = this.add.image(50, 50, 'pickup_star');
+    starIcon.setScale(0.5);
     starIcon.setScrollFactor(0);
     starIcon.setDepth(1000);
 
-    this.scoreText = this.add.text(70, 25, '0000', {
+    this.scoreText = this.add.text(90, 30, '0000', {
       fontFamily: 'Arial Black, sans-serif',
-      fontSize: '42px',
+      fontSize: '48px',
       color: '#ffffff',
       stroke: '#000000',
       strokeThickness: 6
@@ -238,7 +238,7 @@ export default class GameScene extends Phaser.Scene {
 
   createStar(x, y) {
     const star = this.stars.create(x, y, 'pickup_star');
-    star.setScale(0.6);
+    star.setScale(0.4);
     star.setVelocity(0, 0);
   }
 
@@ -248,7 +248,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Smart spawning - ensure there's always a gap
     const numEnemies = Phaser.Math.Between(1, 3);
-    const safeZoneHeight = 150; // Minimum gap for player
+    const safeZoneHeight = 200; // Minimum gap for player
     const lanes = Math.floor(height / safeZoneHeight);
     const occupiedLanes = [];
 
@@ -273,7 +273,7 @@ export default class GameScene extends Phaser.Scene {
 
   createEnemy(x, y, type) {
     const enemy = this.enemies.create(x, y, type);
-    enemy.setScale(0.7);
+    enemy.setScale(0.5);
     enemy.setVelocity(0, 0);
   }
 
