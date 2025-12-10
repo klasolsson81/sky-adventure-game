@@ -24,7 +24,7 @@ function GameComponent({ selectedShip, onGameOver }) {
         default: 'arcade',
         arcade: {
           gravity: { y: 0 },
-          debug: false
+          debug: true  // Enable to see green hitboxes for verification
         }
       },
       scene: GameScene,

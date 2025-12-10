@@ -74,16 +74,16 @@ export default class GameScene extends Phaser.Scene {
     this.smokeEmitter = this.add.particles(0, 0, 'particle_smoke', {
       speed: { min: -60, max: -30 },
       angle: { min: 170, max: 190 },
-      scale: { start: 0.05, end: 0.15 },  // Much smaller smoke
+      scale: { start: 0.1, end: 0 },  // Start small, fade to nothing
       alpha: { start: 0.4, end: 0 },
       lifespan: 400,
       blendMode: 'NORMAL',
-      frequency: 60
+      frequency: 60,
+      quantity: 1  // Emit fewer particles for cleaner look
     });
 
-    // Attach emitter to player's tail (back of plane)
-    const offsetX = -this.player.width * this.player.scaleX / 2;
-    this.smokeEmitter.startFollow(this.player, offsetX, 0);
+    // Attach emitter to player's tail - hardcoded offset to ensure it's behind
+    this.smokeEmitter.startFollow(this.player, -80, 10);
     this.smokeEmitter.setDepth(50);  // Smoke behind player but in front of background
 
     // Groups
@@ -143,15 +143,19 @@ export default class GameScene extends Phaser.Scene {
     };
     const depth = depthMap[key] || 0;
 
+    // Get actual texture height to prevent stretching
+    const tex = this.textures.get(key);
+    const texHeight = tex.getSourceImage().height;
+
     // Sky fills entire screen
     if (key === 'bg_sky') {
       const layer1 = this.add.tileSprite(0, 0, width, height, key).setOrigin(0, 0).setDepth(depth);
       const layer2 = this.add.tileSprite(width, 0, width, height, key).setOrigin(0, 0).setDepth(depth);
       this.bgLayers.push({ sprites: [layer1, layer2], scrollFactor });
     } else {
-      // Other layers align to bottom
-      const layer1 = this.add.tileSprite(0, height, width, height, key).setOrigin(0, 1).setDepth(depth);
-      const layer2 = this.add.tileSprite(width, height, width, height, key).setOrigin(0, 1).setDepth(depth);
+      // Other layers align to bottom using actual texture height (no stretching)
+      const layer1 = this.add.tileSprite(0, height, width, texHeight, key).setOrigin(0, 1).setDepth(depth);
+      const layer2 = this.add.tileSprite(width, height, width, texHeight, key).setOrigin(0, 1).setDepth(depth);
       this.bgLayers.push({ sprites: [layer1, layer2], scrollFactor });
     }
   }
@@ -264,11 +268,11 @@ export default class GameScene extends Phaser.Scene {
     star.setScale(0.15);  // Scale down to 15%
     star.setDepth(100);   // In front of background
 
-    // Update physics body to match the scaled visual size
-    const scaledWidth = star.width * 0.15;
-    const scaledHeight = star.height * 0.15;
-    star.body.setSize(scaledWidth, scaledHeight);
-    star.body.setOffset((star.width - scaledWidth) / 2, (star.height - scaledHeight) / 2);
+    // Use circular hitbox for forgiving collection
+    // Slightly smaller radius than full image for better gameplay feel
+    const radius = star.width * 0.08;
+    star.body.setCircle(radius);
+    star.body.setOffset(star.width / 2 - radius, star.height / 2 - radius);
 
     star.setVelocity(0, 0);
   }
