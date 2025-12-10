@@ -49,12 +49,12 @@ export default class GameScene extends Phaser.Scene {
     this.speedMultiplier = 1;
     this.baseScrollSpeed = 2;
 
-    // Create parallax background (4 layers)
+    // Create parallax background (4 layers) - using single sprite per layer
     this.bgLayers = [];
-    this.createParallaxLayer('bg_sky', 0.2);
-    this.createParallaxLayer('bg_mountains', 0.4);
-    this.createParallaxLayer('bg_hills', 0.6);
-    this.createParallaxLayer('bg_ground', 1);
+    this.createParallaxLayer('bg_sky', 0, 1, false);           // Sky fills screen, no scroll
+    this.createParallaxLayer('bg_mountains', 0.2, 0.5, true);  // Mountains slow scroll
+    this.createParallaxLayer('bg_hills', 0.5, 0.4, true);      // Hills medium scroll
+    this.createParallaxLayer('bg_ground', 1.0, 0.25, true);    // Ground fast scroll, thin strip
 
     // Determine ship image
     const shipImages = {
@@ -130,49 +130,24 @@ export default class GameScene extends Phaser.Scene {
     this.enemySpawnInterval = 3000;  // Increased from 2000
   }
 
-  createParallaxLayer(key, scrollFactor) {
-    const width = this.scale.width;
-    const height = this.scale.height;
-
-    // Set proper depth for layering
-    const depthMap = {
-      'bg_sky': 0,
-      'bg_mountains': 1,
-      'bg_hills': 2,
-      'bg_ground': 3
-    };
-    const depth = depthMap[key] || 0;
-
-    // Set scale for each layer to control size
-    const scaleMap = {
-      'bg_sky': 1,         // Sky fills entire screen
-      'bg_mountains': 0.5, // Mountains smaller
-      'bg_hills': 0.4,     // Hills much smaller
-      'bg_ground': 0.3     // Ground thin strip at bottom (10-15% of screen)
-    };
-    const layerScale = scaleMap[key] || 1;
-
-    // Get actual texture height to prevent stretching
+  createParallaxLayer(key, scrollFactor, scale, anchorBottom = true) {
     const tex = this.textures.get(key);
     const texHeight = tex.getSourceImage().height;
+    const gameWidth = this.scale.width;
+    const gameHeight = this.scale.height;
 
-    // Sky fills entire screen
-    if (key === 'bg_sky') {
-      const layer1 = this.add.tileSprite(0, 0, width, height, key).setOrigin(0, 0).setDepth(depth);
-      const layer2 = this.add.tileSprite(width, 0, width, height, key).setOrigin(0, 0).setDepth(depth);
-      this.bgLayers.push({ sprites: [layer1, layer2], scrollFactor });
-    } else {
-      // Other layers scaled down and aligned to bottom
-      const layer1 = this.add.tileSprite(0, height, width, texHeight, key)
-        .setOrigin(0, 1)
-        .setScale(layerScale)
-        .setDepth(depth);
-      const layer2 = this.add.tileSprite(width, height, width, texHeight, key)
-        .setOrigin(0, 1)
-        .setScale(layerScale)
-        .setDepth(depth);
-      this.bgLayers.push({ sprites: [layer1, layer2], scrollFactor });
-    }
+    // Create ONE tileSprite that spans the full game width
+    // Height is the texture's native height
+    const sprite = this.add.tileSprite(0, 0, gameWidth, texHeight, key);
+
+    sprite.setOrigin(0, anchorBottom ? 1 : 0); // Anchor to bottom-left if ground/hills
+    sprite.setPosition(0, anchorBottom ? gameHeight : 0); // Position at bottom of screen
+    sprite.setScrollFactor(0); // Fix to camera
+    sprite.setScale(scale); // Scale it down
+    sprite.setDepth(this.bgLayers.length); // Auto-depth based on order
+
+    // Store for update loop
+    this.bgLayers.push({ sprite, scrollFactor });
   }
 
   update(time, delta) {
@@ -196,12 +171,10 @@ export default class GameScene extends Phaser.Scene {
       this.player.setVelocityY(0);
     }
 
-    // Update parallax background
+    // Update parallax background - scroll texture instead of moving sprites
     const scrollSpeed = this.baseScrollSpeed * this.speedMultiplier;
     this.bgLayers.forEach(layer => {
-      layer.sprites.forEach(sprite => {
-        sprite.tilePositionX += scrollSpeed * layer.scrollFactor;
-      });
+      layer.sprite.tilePositionX += scrollSpeed * layer.scrollFactor;
     });
 
     // Increase difficulty over time
