@@ -187,7 +187,7 @@ export default class GameScene extends Phaser.Scene {
 
     const width = this.scale.width;
     const height = this.scale.height;
-    const moveSpeed = 300;
+    const moveSpeed = 400;
 
     // Touch controls for mobile - move towards finger position
     const pointer = this.input.activePointer;
@@ -224,6 +224,11 @@ export default class GameScene extends Phaser.Scene {
       } else {
         this.player.setVelocityY(0);
       }
+    }
+
+    // Prevent player from flying below the ground (keep above grass)
+    if (this.player.y > height - 100) {
+      this.player.y = height - 100;
     }
 
     // Update parallax background - scroll texture instead of moving sprites
@@ -283,8 +288,8 @@ export default class GameScene extends Phaser.Scene {
     const width = this.scale.width;
     const numStars = Phaser.Math.Between(3, 5);  // Reduced from 4-7 to 3-5
 
-    // Stars spawn in the sky area (top 70% of screen)
-    const skyHeight = height * 0.7;
+    // Stars spawn across entire sky down to grass level (no safe spots!)
+    const skyHeight = height - 100;
 
     // Choose spawn pattern
     const pattern = Phaser.Math.Between(0, 2);
@@ -318,14 +323,14 @@ export default class GameScene extends Phaser.Scene {
     const star = this.stars.create(x, y, 'pickup_star');
 
     // Responsive sizing: larger on PC, smaller on mobile
-    const maxScale = this.scale.width > 768 ? 0.18 : 0.08;  // PC vs Mobile
+    const maxScale = this.scale.width > 768 ? 0.25 : 0.10;  // PC vs Mobile
     const starScale = Math.min(0.25 * this.scaleRatio, maxScale);
     star.setScale(starScale);
     star.setDepth(100);   // In front of background
 
     // Use circular hitbox for forgiving collection
     // Slightly smaller radius than full image for better gameplay feel
-    const radius = star.width * 0.08;
+    const radius = star.width * 0.06;
     star.body.setCircle(radius);
     star.body.setOffset(star.width / 2 - radius, star.height / 2 - radius);
 
@@ -336,12 +341,12 @@ export default class GameScene extends Phaser.Scene {
     const height = this.scale.height;
     const width = this.scale.width;
 
-    // Smart spawning in the sky area (top 60% of screen)
+    // Enemies spawn across entire sky down to grass level (no safe spots!)
     const numEnemies = Phaser.Math.Between(1, 2);  // Reduced from 1-3 to 1-2
-    const skyHeight = height * 0.6; // Top 60% is sky
+    const skyHeight = height - 100; // Down to grass level
 
     // Dynamic safeZoneHeight based on screen size (responsive for mobile)
-    const safeZoneHeight = Math.max(120, 150 * this.scaleRatio);
+    const safeZoneHeight = 80 * this.scaleRatio;
     const lanes = Math.floor(skyHeight / safeZoneHeight);
     const occupiedLanes = [];
 
@@ -369,13 +374,13 @@ export default class GameScene extends Phaser.Scene {
     const enemy = this.enemies.create(x, y, type);
 
     // Responsive sizing: larger on PC, smaller on mobile
-    const maxScale = this.scale.width > 768 ? 0.18 : 0.08;  // PC vs Mobile
+    const maxScale = this.scale.width > 768 ? 0.25 : 0.10;  // PC vs Mobile
     const enemyScale = Math.min(0.25 * this.scaleRatio, maxScale);
     enemy.setScale(enemyScale);
     enemy.setDepth(100);   // In front of background
 
     // Hitbox size should also be responsive
-    const maxHitboxScale = this.scale.width > 768 ? 1.2 : 0.8;
+    const maxHitboxScale = this.scale.width > 768 ? 1.0 : 0.6;
     const hitboxScale = Math.min(this.scaleRatio, maxHitboxScale);
     enemy.setBodySize(120 * hitboxScale, 80 * hitboxScale);
 
