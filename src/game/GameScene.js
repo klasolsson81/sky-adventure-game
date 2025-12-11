@@ -79,7 +79,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Create player (positioned in sky area)
     this.player = this.physics.add.sprite(250, height * 0.4, shipKey);
-    this.player.setScale(0.7 * this.scaleRatio);  // Responsive scaling
+    this.player.setScale(0.15 * this.scaleRatio);  // Responsive scaling for high-res images
     this.player.setCollideWorldBounds(true);
     this.player.setDepth(100);  // Player in front of background
 
