@@ -288,8 +288,8 @@ export default class GameScene extends Phaser.Scene {
     const width = this.scale.width;
     const numStars = Phaser.Math.Between(3, 5);  // Reduced from 4-7 to 3-5
 
-    // Stars spawn across entire sky down to grass level (no safe spots!)
-    const skyHeight = height - 100;
+    // Stars spawn in sky area, with margin above ground to prevent clipping
+    const skyHeight = height - 180;
 
     // Choose spawn pattern
     const pattern = Phaser.Math.Between(0, 2);
@@ -341,9 +341,9 @@ export default class GameScene extends Phaser.Scene {
     const height = this.scale.height;
     const width = this.scale.width;
 
-    // Enemies spawn across entire sky down to grass level (no safe spots!)
+    // Enemies spawn in sky area, with margin above ground to prevent clipping
     const numEnemies = Phaser.Math.Between(1, 2);  // Reduced from 1-3 to 1-2
-    const skyHeight = height - 100; // Down to grass level
+    const skyHeight = height - 180; // Safe margin above ground
 
     // Dynamic safeZoneHeight based on screen size (responsive for mobile)
     const safeZoneHeight = 80 * this.scaleRatio;
