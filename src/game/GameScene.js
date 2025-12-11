@@ -329,9 +329,9 @@ export default class GameScene extends Phaser.Scene {
     const height = this.scale.height;
     const width = this.scale.width;
 
-    // Enemies spawn in sky area, with larger margin above ground to keep them fully visible
+    // Enemies spawn in sky area, with extra large margin above ground to keep them fully visible
     const numEnemies = Phaser.Math.Between(1, 2);  // Reduced from 1-3 to 1-2
-    const skyHeight = height - 250 * this.scaleRatio; // Larger margin to keep enemies visible
+    const skyHeight = height - 350 * this.scaleRatio; // Extra large margin especially for mobile
 
     // Dynamic safeZoneHeight based on screen size (responsive for mobile)
     const safeZoneHeight = 80 * this.scaleRatio;

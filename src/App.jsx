@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import GameComponent from './components/GameComponent';
 import './index.css';
 
@@ -200,6 +201,9 @@ function App() {
 
       {/* Copyright Footer - Visible on all screens */}
       <div className="copyright">© Klas Olsson 2025</div>
+
+      {/* Vercel Analytics */}
+      <Analytics />
     </div>
   );
 }
