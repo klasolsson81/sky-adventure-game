@@ -8,6 +8,7 @@ function App() {
   const [selectedShip, setSelectedShip] = useState(null);
   const [score, setScore] = useState(0);
   const [isPortrait, setIsPortrait] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [highScores, setHighScores] = useState(() => {
     const saved = localStorage.getItem('skyHighScores');
     if (!saved) return [];
@@ -42,6 +43,18 @@ function App() {
     };
   }, []);
 
+  // Detect fullscreen changes
+  useEffect(() => {
+    const checkFullscreen = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', checkFullscreen);
+    return () => {
+      document.removeEventListener('fullscreenchange', checkFullscreen);
+    };
+  }, []);
+
   const handleStartClick = () => {
     const audio = new Audio('/audio/sfx_click.mp3');
     audio.play().catch(() => {});
@@ -52,8 +65,16 @@ function App() {
     const audio = new Audio('/audio/sfx_click.mp3');
     audio.play().catch(() => {});
 
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {});
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
     }
   };
 
@@ -117,8 +138,14 @@ function App() {
           <button className="start-button" onClick={handleStartClick}>
             Starta Spel
           </button>
-          <button className="fullscreen-button" onClick={handleFullscreen}>
-            🖵 Helskärm
+          <button
+            className={`fullscreen-button ${window.innerWidth <= 768 ? 'mobile-recommended' : ''}`}
+            onClick={handleFullscreen}
+          >
+            {isFullscreen ? '⊗ Avsluta Helskärm' : '🖵 Helskärm'}
+            {window.innerWidth <= 768 && !isFullscreen && (
+              <span className="recommended-badge">Rekommenderas för mobil!</span>
+            )}
           </button>
         </div>
       )}

@@ -89,18 +89,25 @@ export default class GameScene extends Phaser.Scene {
 
     // Score display (top left with star icon) - responsive scaling
     const starIcon = this.add.image(30 * this.scaleRatio, 30 * this.scaleRatio, 'pickup_star');
-    starIcon.setScale(0.15 * this.scaleRatio);  // Responsive scaling
+    starIcon.setScale(0.2 * this.scaleRatio);  // Slightly larger star icon
     starIcon.setScrollFactor(0);
     starIcon.setDepth(1000);
 
-    // Dynamic font size based on scaleRatio
-    const fontSize = Math.floor(40 * this.scaleRatio);
-    this.scoreText = this.add.text(65 * this.scaleRatio, 15 * this.scaleRatio, 'Poäng: 0', {
+    // Semi-transparent background for score for better visibility
+    const scoreBg = this.add.graphics();
+    scoreBg.fillStyle(0x000000, 0.5);
+    scoreBg.fillRoundedRect(10 * this.scaleRatio, 10 * this.scaleRatio, 180 * this.scaleRatio, 50 * this.scaleRatio, 10);
+    scoreBg.setScrollFactor(0);
+    scoreBg.setDepth(999);
+
+    // Dynamic font size based on scaleRatio - larger and more visible
+    const fontSize = Math.floor(48 * this.scaleRatio);
+    this.scoreText = this.add.text(70 * this.scaleRatio, 15 * this.scaleRatio, 'Poäng: 0', {
       fontFamily: 'Arial Black, sans-serif',
       fontSize: `${fontSize}px`,
-      color: '#ffffff',
+      color: '#FFD700',  // Gold color for better visibility
       stroke: '#000000',
-      strokeThickness: Math.max(2, Math.floor(4 * this.scaleRatio))
+      strokeThickness: Math.max(3, Math.floor(6 * this.scaleRatio))
     });
     this.scoreText.setScrollFactor(0);
     this.scoreText.setDepth(1000);
