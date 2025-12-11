@@ -276,16 +276,18 @@ export default class GameScene extends Phaser.Scene {
     const width = this.scale.width;
     const numStars = Phaser.Math.Between(3, 5);  // Reduced from 4-7 to 3-5
 
-    // Stars spawn in sky area, with larger margin above ground to keep them fully visible
-    const skyHeight = height - 250 * this.scaleRatio;
+    // Stars spawn in same area as enemies: fixed margins for consistency
+    const topMargin = 80;  // Below score display
+    const bottomMargin = 200;  // Above ground level
+    const spawnHeight = height - topMargin - bottomMargin;
 
     // Choose spawn pattern
     const pattern = Phaser.Math.Between(0, 2);
 
     if (pattern === 0) {
       // Arc/wave pattern (like concept art)
-      const centerY = skyHeight / 2 + 50;
-      const arcRadius = 150;  // Increased for wider spread
+      const centerY = topMargin + spawnHeight / 2;
+      const arcRadius = Math.min(150, spawnHeight / 3);  // Responsive arc size
       for (let i = 0; i < numStars; i++) {
         const angle = (Math.PI / (numStars - 1)) * i - Math.PI / 2;
         const x = width + i * 100;  // Increased spacing from 60 to 100
@@ -294,13 +296,13 @@ export default class GameScene extends Phaser.Scene {
       }
     } else if (pattern === 1) {
       // Horizontal line with more spacing
-      const y = Phaser.Math.Between(100, skyHeight - 50);
+      const y = Phaser.Math.Between(topMargin + 50, height - bottomMargin - 50);
       for (let i = 0; i < numStars; i++) {
         this.createStar(width + i * 120, y);  // Increased spacing from 70 to 120
       }
     } else {
       // Vertical wave with more spacing
-      const startY = Phaser.Math.Between(100, 250);
+      const startY = Phaser.Math.Between(topMargin + 50, topMargin + Math.min(200, spawnHeight / 2));
       for (let i = 0; i < numStars; i++) {
         this.createStar(width + i * 100, startY + Math.sin(i * 0.5) * 120);  // Increased spacing
       }
@@ -329,13 +331,17 @@ export default class GameScene extends Phaser.Scene {
     const height = this.scale.height;
     const width = this.scale.width;
 
-    // Enemies spawn in sky area, with extra large margin above ground to keep them fully visible
+    // Enemies spawn across the full sky area, with fixed margins
     const numEnemies = Phaser.Math.Between(1, 2);  // Reduced from 1-3 to 1-2
-    const skyHeight = height - 350 * this.scaleRatio; // Extra large margin especially for mobile
+
+    // Fixed margins: top margin below score UI, bottom margin above ground
+    const topMargin = 80;  // Below score display
+    const bottomMargin = 200;  // Above ground level (fixed, not scaled)
+    const spawnHeight = height - topMargin - bottomMargin;
 
     // Dynamic safeZoneHeight based on screen size (responsive for mobile)
     const safeZoneHeight = 80 * this.scaleRatio;
-    const lanes = Math.floor(skyHeight / safeZoneHeight);
+    const lanes = Math.max(1, Math.floor(spawnHeight / safeZoneHeight));
     const occupiedLanes = [];
 
     // Fixed loop condition: removed "- 1" to work with small lane counts
@@ -351,7 +357,7 @@ export default class GameScene extends Phaser.Scene {
 
       if (attempts < 10) {
         occupiedLanes.push(lane);
-        const y = 100 + lane * safeZoneHeight + safeZoneHeight / 2;
+        const y = topMargin + lane * safeZoneHeight + safeZoneHeight / 2;
         const enemyType = Phaser.Math.Between(0, 1) === 0 ? 'enemy_cloud' : 'enemy_robot';
         this.createEnemy(width + 50, y, enemyType);
       }
