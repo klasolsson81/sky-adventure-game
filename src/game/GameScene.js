@@ -141,18 +141,20 @@ export default class GameScene extends Phaser.Scene {
     const responsiveScale = scale * this.scaleRatio;
 
     // Calculate the physical height this layer should occupy
-    const targetHeight = texHeight * responsiveScale;
+    // Use Math.ceil to avoid sub-pixel rendering issues
+    const targetHeight = Math.ceil(texHeight * responsiveScale);
 
     // Create a tileSprite that fills the FULL width, but has the scaled-down height
-    // Add 2px bleed to prevent sub-pixel gaps between layers
-    const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, targetHeight + 2, key);
+    // Add 5px bleed to prevent sub-pixel gaps between layers
+    const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, targetHeight + 5, key);
 
     if (anchorBottom) {
       sprite.setOrigin(0.5, 1); // Anchor bottom-center
-      sprite.setPosition(gameWidth / 2, gameHeight); // Stick to bottom
+      // Use Math.round to avoid sub-pixel positioning
+      sprite.setPosition(Math.round(gameWidth / 2), Math.round(gameHeight)); // Stick to bottom
     } else {
       sprite.setOrigin(0.5, 0); // Anchor top-center
-      sprite.setPosition(gameWidth / 2, 0);
+      sprite.setPosition(Math.round(gameWidth / 2), 0);
       sprite.height = gameHeight;
     }
 
