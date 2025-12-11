@@ -334,15 +334,15 @@ export default class GameScene extends Phaser.Scene {
     // Enemies spawn in lanes across the sky
     const numEnemies = Phaser.Math.Between(1, 2);
 
-    // Smaller margins to allow more spawn area
-    const topMargin = 70;  // Just below score display
-    const bottomMargin = 150;  // Above ground level
+    // Expand spawn area to reach closer to top and bottom
+    const topMargin = 60;  // Closer to top, just below score
+    const bottomMargin = 80;  // Closer to ground but still visible
     const spawnHeight = height - topMargin - bottomMargin;
 
     // Smaller lane height for more lanes, plus random offset for variety
     const laneHeight = 70;  // Smaller lanes = more distribution
-    const randomOffset = 30;  // Random variation within each lane
-    const numLanes = Math.max(3, Math.floor(spawnHeight / laneHeight));
+    const randomOffset = 35;  // Increased random variation within each lane
+    const numLanes = Math.max(4, Math.floor(spawnHeight / laneHeight));
     const occupiedLanes = [];
 
     for (let i = 0; i < numEnemies && occupiedLanes.length < numLanes; i++) {
