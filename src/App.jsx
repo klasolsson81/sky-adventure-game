@@ -197,6 +197,9 @@ function App() {
           </button>
         </div>
       )}
+
+      {/* Copyright Footer - Visible on all screens */}
+      <div className="copyright">© Klas Olsson 2025</div>
     </div>
   );
 }
