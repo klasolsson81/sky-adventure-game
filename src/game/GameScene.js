@@ -105,25 +105,6 @@ export default class GameScene extends Phaser.Scene {
     this.scoreText.setScrollFactor(0);
     this.scoreText.setDepth(1000);
 
-    // Copyright text (bottom center)
-    const copyrightFontSize = Math.floor(16 * this.scaleRatio);
-    this.copyrightText = this.add.text(
-      width / 2,
-      height - 10 * this.scaleRatio,
-      '© Klas Olsson 2025',
-      {
-        fontFamily: 'Arial, sans-serif',
-        fontSize: `${copyrightFontSize}px`,
-        color: '#ffffff',
-        stroke: '#000000',
-        strokeThickness: Math.max(1, Math.floor(2 * this.scaleRatio)),
-        alpha: 0.6
-      }
-    );
-    this.copyrightText.setOrigin(0.5, 1);
-    this.copyrightText.setScrollFactor(0);
-    this.copyrightText.setDepth(1000);
-
     // Input
     this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -164,8 +145,8 @@ export default class GameScene extends Phaser.Scene {
     const targetHeight = Math.ceil(texHeight * responsiveScale);
 
     // Create a tileSprite that fills the FULL width, but has the scaled-down height
-    // Add extra bleed for mobile (10px) vs desktop (5px) to handle retina displays
-    const bleed = gameHeight < 600 ? 10 : 5;
+    // Add extra bleed for mobile (20px) vs desktop (5px) to handle retina displays
+    const bleed = gameHeight < 600 ? 20 : 5;
     const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, targetHeight + bleed, key);
 
     if (anchorBottom) {
