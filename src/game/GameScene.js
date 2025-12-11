@@ -331,38 +331,33 @@ export default class GameScene extends Phaser.Scene {
     const height = this.scale.height;
     const width = this.scale.width;
 
-    // Enemies spawn across the full sky area, with fixed margins
-    const numEnemies = Phaser.Math.Between(1, 2);  // Reduced from 1-3 to 1-2
+    // Enemies spawn in lanes across the sky
+    const numEnemies = Phaser.Math.Between(1, 2);
 
-    // Fixed margins: top margin below score UI, bottom margin above ground
+    // Fixed margins for consistent spawn area
     const topMargin = 100;  // Below score display
-    const bottomMargin = 200;  // Above ground level (fixed, not scaled)
-    const minSpacing = 80;  // Minimum vertical spacing between enemies
+    const bottomMargin = 200;  // Above ground level
+    const spawnHeight = height - topMargin - bottomMargin;
 
-    const spawnedPositions = [];
+    // Use fixed lane height for consistent behavior across all devices
+    const laneHeight = 100;  // Fixed lane height for good distribution
+    const numLanes = Math.max(2, Math.floor(spawnHeight / laneHeight));
+    const occupiedLanes = [];
 
-    for (let i = 0; i < numEnemies; i++) {
-      let y;
+    for (let i = 0; i < numEnemies && occupiedLanes.length < numLanes; i++) {
+      let lane;
       let attempts = 0;
-      const maxAttempts = 20;
 
-      // Find a position that doesn't overlap with existing enemies
+      // Find an unoccupied lane
       do {
-        y = Phaser.Math.Between(topMargin, height - bottomMargin);
-
-        // Check if this position is far enough from other enemies
-        const tooClose = spawnedPositions.some(pos => Math.abs(pos - y) < minSpacing);
-
-        if (!tooClose) {
-          break;
-        }
-
+        lane = Phaser.Math.Between(0, numLanes - 1);
         attempts++;
-      } while (attempts < maxAttempts);
+      } while (occupiedLanes.includes(lane) && attempts < 10);
 
-      // Only spawn if we found a valid position
-      if (attempts < maxAttempts) {
-        spawnedPositions.push(y);
+      if (attempts < 10) {
+        occupiedLanes.push(lane);
+        // Calculate Y position within the spawn area
+        const y = topMargin + (lane * laneHeight) + (laneHeight / 2);
         const enemyType = Phaser.Math.Between(0, 1) === 0 ? 'enemy_cloud' : 'enemy_robot';
         this.createEnemy(width + 50, y, enemyType);
       }
