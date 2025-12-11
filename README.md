@@ -1,4 +1,6 @@
 # Sky High Adventures ✈️⭐
+<img width="3113" height="1147" alt="concept_art" src="https://github.com/user-attachments/assets/7c4a6da4-834b-4e6e-b219-9267c859b16f" />
+
 
 Ett fartfyllt flygspel där du styr din pilot genom himlen, samlar stjärnor och undviker farliga hinder!
 
