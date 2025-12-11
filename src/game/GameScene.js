@@ -93,21 +93,21 @@ export default class GameScene extends Phaser.Scene {
     starIcon.setScrollFactor(0);
     starIcon.setDepth(1000);
 
-    // Semi-transparent background for score for better visibility
-    const scoreBg = this.add.graphics();
-    scoreBg.fillStyle(0x000000, 0.5);
-    scoreBg.fillRoundedRect(10 * this.scaleRatio, 10 * this.scaleRatio, 180 * this.scaleRatio, 50 * this.scaleRatio, 10);
-    scoreBg.setScrollFactor(0);
-    scoreBg.setDepth(999);
-
     // Dynamic font size based on scaleRatio - larger and more visible
     const fontSize = Math.floor(48 * this.scaleRatio);
-    this.scoreText = this.add.text(70 * this.scaleRatio, 15 * this.scaleRatio, 'Poäng: 0', {
+    this.scoreText = this.add.text(70 * this.scaleRatio, 18 * this.scaleRatio, 'Poäng: 0', {
       fontFamily: 'Arial Black, sans-serif',
       fontSize: `${fontSize}px`,
-      color: '#FFD700',  // Gold color for better visibility
+      color: '#FFFFFF',  // White with strong shadow
       stroke: '#000000',
-      strokeThickness: Math.max(3, Math.floor(6 * this.scaleRatio))
+      strokeThickness: Math.max(4, Math.floor(8 * this.scaleRatio)),
+      shadow: {
+        offsetX: 3,
+        offsetY: 3,
+        color: '#000000',
+        blur: 5,
+        fill: true
+      }
     });
     this.scoreText.setScrollFactor(0);
     this.scoreText.setDepth(1000);

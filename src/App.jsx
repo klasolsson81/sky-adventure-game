@@ -9,6 +9,7 @@ function App() {
   const [score, setScore] = useState(0);
   const [isPortrait, setIsPortrait] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showFullscreenWarning, setShowFullscreenWarning] = useState(false);
   const [highScores, setHighScores] = useState(() => {
     const saved = localStorage.getItem('skyHighScores');
     if (!saved) return [];
@@ -56,9 +57,41 @@ function App() {
   }, []);
 
   const handleStartClick = () => {
+    // Check if on mobile and not in fullscreen
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile && !document.fullscreenElement) {
+      // Show warning for mobile users not in fullscreen
+      setShowFullscreenWarning(true);
+    } else {
+      // Proceed to game
+      const audio = new Audio('/audio/sfx_click.mp3');
+      audio.play().catch(() => {});
+      setGameState('select');
+    }
+  };
+
+  const handleStartWithoutFullscreen = () => {
     const audio = new Audio('/audio/sfx_click.mp3');
     audio.play().catch(() => {});
+    setShowFullscreenWarning(false);
     setGameState('select');
+  };
+
+  const handleStartWithFullscreen = () => {
+    const audio = new Audio('/audio/sfx_click.mp3');
+    audio.play().catch(() => {});
+    setShowFullscreenWarning(false);
+
+    // Enter fullscreen first
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().then(() => {
+        setGameState('select');
+      }).catch(() => {
+        setGameState('select');
+      });
+    } else {
+      setGameState('select');
+    }
   };
 
   const handleFullscreen = () => {
@@ -135,18 +168,40 @@ function App() {
       {gameState === 'menu' && (
         <div className="menu-screen">
           <h1 className="game-title">Sky High Adventures</h1>
-          <button className="start-button" onClick={handleStartClick}>
-            Starta Spel
-          </button>
-          <button
-            className={`fullscreen-button ${window.innerWidth <= 768 ? 'mobile-recommended' : ''}`}
-            onClick={handleFullscreen}
-          >
-            {isFullscreen ? '⊗ Avsluta Helskärm' : '🖵 Helskärm'}
-            {window.innerWidth <= 768 && !isFullscreen && (
-              <span className="recommended-badge">Rekommenderas för mobil!</span>
-            )}
-          </button>
+          <div className="button-container">
+            <button className="start-button" onClick={handleStartClick}>
+              Starta Spel
+            </button>
+            <button
+              className="fullscreen-toggle-button"
+              onClick={handleFullscreen}
+            >
+              {isFullscreen ? '⊗ Avsluta\nHelskärm' : '🖵 Aktivera\nHelskärm'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Warning Modal for Mobile */}
+      {showFullscreenWarning && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>⚠️ Helskärmsläge</h2>
+            <p>
+              Spelet är optimerat för PC och fungerar bäst på mobil i helskärmsläge.
+            </p>
+            <p style={{ fontSize: '0.9rem', color: '#ccc', marginTop: '1rem' }}>
+              Vill du aktivera helskärmsläge för bästa upplevelse?
+            </p>
+            <div className="modal-buttons">
+              <button className="modal-button primary" onClick={handleStartWithFullscreen}>
+                🖵 Starta med Helskärm
+              </button>
+              <button className="modal-button secondary" onClick={handleStartWithoutFullscreen}>
+                Fortsätt utan
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
