@@ -83,22 +83,6 @@ export default class GameScene extends Phaser.Scene {
     this.player.setCollideWorldBounds(true);
     this.player.setDepth(100);  // Player in front of background
 
-    // Create smoke particle emitter
-    this.smokeEmitter = this.add.particles(0, 0, 'particle_smoke', {
-      speed: { min: -60, max: -30 },
-      angle: { min: 170, max: 190 },
-      scale: { start: 0.1, end: 0 },  // Start small, fade to nothing
-      alpha: { start: 0.4, end: 0 },
-      lifespan: 400,
-      blendMode: 'NORMAL',
-      frequency: 60,
-      quantity: 1  // Emit fewer particles for cleaner look
-    });
-
-    // Attach emitter to player's tail - larger offset for proper tail placement
-    this.smokeEmitter.startFollow(this.player, -120 * this.scaleRatio, 10 * this.scaleRatio);
-    this.smokeEmitter.setDepth(this.player.depth - 1);  // Smoke strictly behind player
-
     // Groups
     this.stars = this.physics.add.group();
     this.enemies = this.physics.add.group();
@@ -160,7 +144,8 @@ export default class GameScene extends Phaser.Scene {
     const targetHeight = texHeight * responsiveScale;
 
     // Create a tileSprite that fills the FULL width, but has the scaled-down height
-    const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, targetHeight, key);
+    // Add 2px bleed to prevent sub-pixel gaps between layers
+    const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, targetHeight + 2, key);
 
     if (anchorBottom) {
       sprite.setOrigin(0.5, 1); // Anchor bottom-center
@@ -408,7 +393,6 @@ export default class GameScene extends Phaser.Scene {
     // Stop all audio and effects
     this.musicBg.stop();
     this.engineSound.stop();
-    this.smokeEmitter.stop();
 
     // Play explosion effect
     this.sound.play('sfx_explosion', { volume: 0.6 });
