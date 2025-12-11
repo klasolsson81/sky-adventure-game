@@ -164,6 +164,9 @@ function App() {
           <div className="score-display">
             <p className="final-score">Din poäng: {score}</p>
           </div>
+          <button className="play-again-button" onClick={handlePlayAgain}>
+            Spela igen
+          </button>
           <div className="highscore-display">
             <h3>Top 10 High Scores</h3>
             <ol>
@@ -192,9 +195,6 @@ function App() {
               )}
             </ol>
           </div>
-          <button className="play-again-button" onClick={handlePlayAgain}>
-            Spela igen
-          </button>
         </div>
       )}
 
