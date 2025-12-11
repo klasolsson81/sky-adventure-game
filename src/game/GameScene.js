@@ -67,7 +67,7 @@ export default class GameScene extends Phaser.Scene {
     this.bgLayers = [];
     this.createParallaxLayer('bg_mountains', 0.2, 0.6, true);  // Mountains bigger - peek above hills
     this.createParallaxLayer('bg_hills', 0.5, 0.4, true);      // Hills medium scroll
-    this.createParallaxLayer('bg_ground', 1.0, 0.25, true);    // Ground fast scroll, thin strip
+    this.createParallaxLayer('bg_ground', 1.0, 0.35, true);    // Ground fast scroll, covers more of bottom
 
     // Determine ship image
     const shipImages = {

@@ -180,11 +180,20 @@ body {
   animation: fadeIn 0.5s ease-in;
   width: 90%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @media (min-width: 768px) {
   .gameover-screen {
     padding: 3rem;
+  }
+}
+
+@media (max-height: 600px) {
+  .gameover-screen {
+    padding: 1rem;
+    max-height: 85vh;
   }
 }
 
@@ -196,6 +205,13 @@ body {
   animation: shake 0.5s;
 }
 
+@media (max-height: 600px) {
+  .gameover-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+}
+
 .score-display {
   margin-bottom: 2rem;
 }
@@ -205,6 +221,13 @@ body {
   color: #FFD700;
   text-shadow: 2px 2px 4px #000;
   margin-bottom: 1rem;
+}
+
+@media (max-height: 600px) {
+  .final-score {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
 }
 
 .highscore-display {
@@ -230,6 +253,26 @@ body {
 
 .highscore-display li {
   margin: 0.5rem 0;
+}
+
+@media (max-height: 600px) {
+  .highscore-display {
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .highscore-display h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .highscore-display ol {
+    font-size: 1rem;
+  }
+
+  .highscore-display li {
+    margin: 0.3rem 0;
+  }
 }
 
 .play-again-button {

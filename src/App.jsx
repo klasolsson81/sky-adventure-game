@@ -169,9 +169,11 @@ function App() {
             <ol>
               {highScores.length > 0 ? (
                 highScores.map((entry, idx) => {
-                  // Highlight current player's score
-                  const isCurrentScore = entry.score === score &&
-                                        entry.name.toLowerCase() === selectedShip;
+                  // Highlight ONLY the first (most recent) matching score
+                  const firstMatchIndex = highScores.findIndex(e =>
+                    e.score === score && e.name.toLowerCase() === selectedShip
+                  );
+                  const isCurrentScore = idx === firstMatchIndex && firstMatchIndex !== -1;
                   return (
                     <li
                       key={idx}
