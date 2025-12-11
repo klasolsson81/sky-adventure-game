@@ -145,9 +145,8 @@ export default class GameScene extends Phaser.Scene {
     const targetHeight = Math.ceil(texHeight * responsiveScale);
 
     // Create a tileSprite that fills the FULL width, but has the scaled-down height
-    // Add extra bleed for mobile (20px) vs desktop (5px) to handle retina displays
-    const bleed = gameHeight < 600 ? 20 : 5;
-    const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, targetHeight + bleed, key);
+    // Small 2px bleed for seamless edges (images are now properly cropped)
+    const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, targetHeight + 2, key);
 
     if (anchorBottom) {
       sprite.setOrigin(0.5, 1); // Anchor bottom-center
