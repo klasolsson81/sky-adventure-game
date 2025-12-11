@@ -322,15 +322,14 @@ export default class GameScene extends Phaser.Scene {
   createStar(x, y) {
     const star = this.stars.create(x, y, 'pickup_star');
 
-    // Responsive sizing: larger on PC, smaller on mobile
-    const maxScale = this.scale.width > 768 ? 0.25 : 0.10;  // PC vs Mobile
-    const starScale = Math.min(0.25 * this.scaleRatio, maxScale);
-    star.setScale(starScale);
+    // Small, nimble stars - easy to navigate around
+    const isDesktop = this.scale.width > 768;
+    const targetScale = isDesktop ? 0.12 : 0.07; // 12% storlek på PC, 7% på mobil
+    star.setScale(targetScale);
     star.setDepth(100);   // In front of background
 
-    // Use circular hitbox for forgiving collection
-    // Slightly smaller radius than full image for better gameplay feel
-    const radius = star.width * 0.06;
+    // Use circular hitbox matching the small sprite
+    const radius = star.width * 0.4;
     star.body.setCircle(radius);
     star.body.setOffset(star.width / 2 - radius, star.height / 2 - radius);
 
@@ -373,16 +372,14 @@ export default class GameScene extends Phaser.Scene {
   createEnemy(x, y, type) {
     const enemy = this.enemies.create(x, y, type);
 
-    // Responsive sizing: larger on PC, smaller on mobile
-    const maxScale = this.scale.width > 768 ? 0.25 : 0.10;  // PC vs Mobile
-    const enemyScale = Math.min(0.25 * this.scaleRatio, maxScale);
-    enemy.setScale(enemyScale);
+    // Small, nimble enemies - easy to navigate around
+    const isDesktop = this.scale.width > 768;
+    const targetScale = isDesktop ? 0.15 : 0.08; // 15% storlek på PC, 8% på mobil
+    enemy.setScale(targetScale);
     enemy.setDepth(100);   // In front of background
 
-    // Hitbox size should also be responsive
-    const maxHitboxScale = this.scale.width > 768 ? 1.0 : 0.6;
-    const hitboxScale = Math.min(this.scaleRatio, maxHitboxScale);
-    enemy.setBodySize(120 * hitboxScale, 80 * hitboxScale);
+    // Hitbox size matching the small sprite
+    enemy.setBodySize(enemy.width * 0.6, enemy.height * 0.6);
 
     // Variable speed based on enemy type - creates dynamic difficulty
     if (type === 'enemy_cloud') {
