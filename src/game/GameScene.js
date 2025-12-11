@@ -335,29 +335,34 @@ export default class GameScene extends Phaser.Scene {
     const numEnemies = Phaser.Math.Between(1, 2);  // Reduced from 1-3 to 1-2
 
     // Fixed margins: top margin below score UI, bottom margin above ground
-    const topMargin = 80;  // Below score display
+    const topMargin = 100;  // Below score display
     const bottomMargin = 200;  // Above ground level (fixed, not scaled)
-    const spawnHeight = height - topMargin - bottomMargin;
+    const minSpacing = 80;  // Minimum vertical spacing between enemies
 
-    // Dynamic safeZoneHeight based on screen size (responsive for mobile)
-    const safeZoneHeight = 80 * this.scaleRatio;
-    const lanes = Math.max(1, Math.floor(spawnHeight / safeZoneHeight));
-    const occupiedLanes = [];
+    const spawnedPositions = [];
 
-    // Fixed loop condition: removed "- 1" to work with small lane counts
-    for (let i = 0; i < numEnemies && occupiedLanes.length < lanes; i++) {
-      let lane;
+    for (let i = 0; i < numEnemies; i++) {
+      let y;
       let attempts = 0;
+      const maxAttempts = 20;
 
-      // Find an unoccupied lane
+      // Find a position that doesn't overlap with existing enemies
       do {
-        lane = Phaser.Math.Between(0, lanes - 1);
-        attempts++;
-      } while (occupiedLanes.includes(lane) && attempts < 10);
+        y = Phaser.Math.Between(topMargin, height - bottomMargin);
 
-      if (attempts < 10) {
-        occupiedLanes.push(lane);
-        const y = topMargin + lane * safeZoneHeight + safeZoneHeight / 2;
+        // Check if this position is far enough from other enemies
+        const tooClose = spawnedPositions.some(pos => Math.abs(pos - y) < minSpacing);
+
+        if (!tooClose) {
+          break;
+        }
+
+        attempts++;
+      } while (attempts < maxAttempts);
+
+      // Only spawn if we found a valid position
+      if (attempts < maxAttempts) {
+        spawnedPositions.push(y);
         const enemyType = Phaser.Math.Between(0, 1) === 0 ? 'enemy_cloud' : 'enemy_robot';
         this.createEnemy(width + 50, y, enemyType);
       }
