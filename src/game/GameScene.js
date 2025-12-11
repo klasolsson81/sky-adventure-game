@@ -65,7 +65,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Create parallax background (3 layers) - using single sprite per layer
     this.bgLayers = [];
-    this.createParallaxLayer('bg_mountains', 0.2, 0.6, true);  // Mountains bigger - peek above hills
+    this.createParallaxLayer('bg_mountains', 0.2, 0.5, true);  // Mountains smaller - positioned higher
     this.createParallaxLayer('bg_hills', 0.5, 0.4, true);      // Hills medium scroll
     this.createParallaxLayer('bg_ground', 1.0, 0.35, true);    // Ground fast scroll, covers more of bottom
 
@@ -213,9 +213,10 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    // Prevent player from flying below the ground (keep above grass)
-    if (this.player.y > height - 100) {
-      this.player.y = height - 100;
+    // Prevent player from flying below the ground (allow down to grass level)
+    const groundMargin = 50 * this.scaleRatio; // Responsive ground margin
+    if (this.player.y > height - groundMargin) {
+      this.player.y = height - groundMargin;
     }
 
     // Update parallax background - scroll texture instead of moving sprites
@@ -275,8 +276,8 @@ export default class GameScene extends Phaser.Scene {
     const width = this.scale.width;
     const numStars = Phaser.Math.Between(3, 5);  // Reduced from 4-7 to 3-5
 
-    // Stars spawn in sky area, with margin above ground to prevent clipping
-    const skyHeight = height - 180;
+    // Stars spawn in sky area, with larger margin above ground to keep them fully visible
+    const skyHeight = height - 250 * this.scaleRatio;
 
     // Choose spawn pattern
     const pattern = Phaser.Math.Between(0, 2);
@@ -328,9 +329,9 @@ export default class GameScene extends Phaser.Scene {
     const height = this.scale.height;
     const width = this.scale.width;
 
-    // Enemies spawn in sky area, with margin above ground to prevent clipping
+    // Enemies spawn in sky area, with larger margin above ground to keep them fully visible
     const numEnemies = Phaser.Math.Between(1, 2);  // Reduced from 1-3 to 1-2
-    const skyHeight = height - 180; // Safe margin above ground
+    const skyHeight = height - 250 * this.scaleRatio; // Larger margin to keep enemies visible
 
     // Dynamic safeZoneHeight based on screen size (responsive for mobile)
     const safeZoneHeight = 80 * this.scaleRatio;
