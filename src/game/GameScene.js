@@ -334,14 +334,15 @@ export default class GameScene extends Phaser.Scene {
     // Enemies spawn in lanes across the sky
     const numEnemies = Phaser.Math.Between(1, 2);
 
-    // Fixed margins for consistent spawn area
-    const topMargin = 100;  // Below score display
-    const bottomMargin = 200;  // Above ground level
+    // Smaller margins to allow more spawn area
+    const topMargin = 70;  // Just below score display
+    const bottomMargin = 150;  // Above ground level
     const spawnHeight = height - topMargin - bottomMargin;
 
-    // Use fixed lane height for consistent behavior across all devices
-    const laneHeight = 100;  // Fixed lane height for good distribution
-    const numLanes = Math.max(2, Math.floor(spawnHeight / laneHeight));
+    // Smaller lane height for more lanes, plus random offset for variety
+    const laneHeight = 70;  // Smaller lanes = more distribution
+    const randomOffset = 30;  // Random variation within each lane
+    const numLanes = Math.max(3, Math.floor(spawnHeight / laneHeight));
     const occupiedLanes = [];
 
     for (let i = 0; i < numEnemies && occupiedLanes.length < numLanes; i++) {
@@ -356,8 +357,11 @@ export default class GameScene extends Phaser.Scene {
 
       if (attempts < 10) {
         occupiedLanes.push(lane);
-        // Calculate Y position within the spawn area
-        const y = topMargin + (lane * laneHeight) + (laneHeight / 2);
+        // Calculate Y position with random offset for variety
+        const baseLaneY = topMargin + (lane * laneHeight) + (laneHeight / 2);
+        const offset = Phaser.Math.Between(-randomOffset, randomOffset);
+        const y = Phaser.Math.Clamp(baseLaneY + offset, topMargin, height - bottomMargin);
+
         const enemyType = Phaser.Math.Between(0, 1) === 0 ? 'enemy_cloud' : 'enemy_robot';
         this.createEnemy(width + 50, y, enemyType);
       }
