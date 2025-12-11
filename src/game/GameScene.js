@@ -323,8 +323,9 @@ export default class GameScene extends Phaser.Scene {
     const star = this.stars.create(x, y, 'pickup_star');
 
     // Small, nimble stars - easy to navigate around
-    const isDesktop = this.scale.width > 768;
-    const targetScale = isDesktop ? 0.12 : 0.035; // 12% storlek på PC, 3.5% på mobil
+    // Use height to detect mobile (mobiles have lower height even in landscape)
+    const isDesktop = this.scale.height > 600;
+    const targetScale = isDesktop ? 0.12 : 0.05; // 12% storlek på PC, 5% på mobil
     star.setScale(targetScale);
     star.setDepth(100);   // In front of background
 
@@ -373,8 +374,9 @@ export default class GameScene extends Phaser.Scene {
     const enemy = this.enemies.create(x, y, type);
 
     // Small, nimble enemies - easy to navigate around
-    const isDesktop = this.scale.width > 768;
-    const targetScale = isDesktop ? 0.15 : 0.04; // 15% storlek på PC, 4% på mobil
+    // Use height to detect mobile (mobiles have lower height even in landscape)
+    const isDesktop = this.scale.height > 600;
+    const targetScale = isDesktop ? 0.15 : 0.06; // 15% storlek på PC, 6% på mobil
     enemy.setScale(targetScale);
     enemy.setDepth(100);   // In front of background
 

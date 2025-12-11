@@ -47,6 +47,20 @@ body {
   animation: bounce 2s infinite;
 }
 
+@media (max-width: 768px) {
+  .game-title {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-height: 600px) {
+  .game-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
 .start-button {
   background: linear-gradient(to bottom, #4CAF50, #45a049);
   color: white;
@@ -59,6 +73,20 @@ body {
   box-shadow: 0 8px 0 #2d6b2f, 0 12px 20px rgba(0,0,0,0.3);
   transition: all 0.1s;
   text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .start-button {
+    font-size: 1.3rem;
+    padding: 1rem 2rem;
+  }
+}
+
+@media (max-height: 600px) {
+  .start-button {
+    font-size: 1.1rem;
+    padding: 0.8rem 1.5rem;
+  }
 }
 
 .start-button:hover {
@@ -84,6 +112,20 @@ body {
   color: #FF6B35;
   text-shadow: 3px 3px 0px #333;
   margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .select-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-height: 600px) {
+  .select-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
 }
 
 .ship-container {
