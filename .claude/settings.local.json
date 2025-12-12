@@ -16,7 +16,8 @@
       "Bash(git mv:*)",
       "Bash(test:*)",
       "Bash(git pull:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

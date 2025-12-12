@@ -25,7 +25,7 @@ export default class GameScene extends Phaser.Scene {
     // Enemies and pickups
     this.load.image('enemy_cloud', '/images/enemy_cloud.png');
     this.load.image('enemy_robot', '/images/enemy_robot.png');
-    this.load.image('pickup_star', '/images/pickup_star.png');
+    this.load.image('pickup_ifk', '/images/pickup_ifk.png');
 
     // Effects
     this.load.image('explosion', '/images/explosion.png');
@@ -87,9 +87,9 @@ export default class GameScene extends Phaser.Scene {
     this.stars = this.physics.add.group();
     this.enemies = this.physics.add.group();
 
-    // Score display (top left with star icon) - responsive scaling
-    const starIcon = this.add.image(30 * this.scaleRatio, 30 * this.scaleRatio, 'pickup_star');
-    starIcon.setScale(0.2 * this.scaleRatio);  // Slightly larger star icon
+    // Score display (top left with IFK icon) - responsive scaling
+    const starIcon = this.add.image(30 * this.scaleRatio, 30 * this.scaleRatio, 'pickup_ifk');
+    starIcon.setScale(0.12 * this.scaleRatio);  // Adjusted for IFK logo size
     starIcon.setScrollFactor(0);
     starIcon.setDepth(1000);
 
@@ -317,12 +317,12 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createStar(x, y) {
-    const star = this.stars.create(x, y, 'pickup_star');
+    const star = this.stars.create(x, y, 'pickup_ifk');
 
-    // Small, nimble stars - easy to navigate around
+    // Small, nimble IFK logos - easy to navigate around
     // Use height to detect mobile (mobiles have lower height even in landscape)
     const isDesktop = this.scale.height > 600;
-    const targetScale = isDesktop ? 0.12 : 0.05; // 12% storlek på PC, 5% på mobil
+    const targetScale = isDesktop ? 0.08 : 0.035; // Adjusted for IFK logo (taller than star)
     star.setScale(targetScale);
     star.setDepth(100);   // In front of background
 
