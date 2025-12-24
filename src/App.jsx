@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import GameComponent from './components/GameComponent';
+import ErrorBoundary from './components/ErrorBoundary';
 import './index.css';
 
 function App() {
@@ -27,6 +28,32 @@ function App() {
       return [];
     }
   });
+
+  // FIX #1: Singleton Audio instances to prevent memory leaks
+  const audioRef = useRef(null);
+
+  // Initialize audio on mount, cleanup on unmount
+  useEffect(() => {
+    audioRef.current = new Audio('/audio/sfx_click.mp3');
+    audioRef.current.volume = 1.0;
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  // Helper function to play click sound (reuses singleton)
+  const playClickSound = (volume = 1.0) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0; // Reset to start
+      audioRef.current.volume = volume;
+      audioRef.current.play().catch(() => {});
+    }
+  };
 
   // Detect orientation changes
   useEffect(() => {
@@ -64,22 +91,19 @@ function App() {
       setShowFullscreenWarning(true);
     } else {
       // Proceed to game
-      const audio = new Audio('/audio/sfx_click.mp3');
-      audio.play().catch(() => {});
+      playClickSound();
       setGameState('select');
     }
   };
 
   const handleStartWithoutFullscreen = () => {
-    const audio = new Audio('/audio/sfx_click.mp3');
-    audio.play().catch(() => {});
+    playClickSound();
     setShowFullscreenWarning(false);
     setGameState('select');
   };
 
   const handleStartWithFullscreen = () => {
-    const audio = new Audio('/audio/sfx_click.mp3');
-    audio.play().catch(() => {});
+    playClickSound();
     setShowFullscreenWarning(false);
 
     // Enter fullscreen first
@@ -95,8 +119,7 @@ function App() {
   };
 
   const handleFullscreen = () => {
-    const audio = new Audio('/audio/sfx_click.mp3');
-    audio.play().catch(() => {});
+    playClickSound();
 
     if (!document.fullscreenElement) {
       // Enter fullscreen
@@ -112,15 +135,12 @@ function App() {
   };
 
   const handleShipHover = () => {
-    // Play hover sound (separate instance so it doesn't cut off click)
-    const audio = new Audio('/audio/sfx_click.mp3');
-    audio.volume = 0.3; // Quieter for hover
-    audio.play().catch(() => {});
+    // Play hover sound at lower volume
+    playClickSound(0.3);
   };
 
   const handleShipSelect = (ship) => {
-    const audio = new Audio('/audio/sfx_click.mp3');
-    audio.play().catch(() => {});
+    playClickSound();
     setSelectedShip(ship);
     setGameState('playing');
   };
@@ -140,14 +160,33 @@ function App() {
       .slice(0, 10); // Keep top 10
 
     setHighScores(newHighScores);
-    localStorage.setItem('skyHighScores', JSON.stringify(newHighScores));
+
+    // FIX #3: Safe localStorage with error handling
+    try {
+      const serialized = JSON.stringify(newHighScores);
+      localStorage.setItem('skyHighScores', serialized);
+    } catch (error) {
+      // Handle quota exceeded or other storage errors
+      console.error('Failed to save high scores to localStorage:', error);
+
+      // If quota exceeded, try to clear old data and retry
+      if (error.name === 'QuotaExceededError') {
+        try {
+          // Clear all localStorage and try again with just current scores
+          localStorage.clear();
+          localStorage.setItem('skyHighScores', JSON.stringify(newHighScores));
+        } catch (retryError) {
+          console.error('Failed to save even after clearing localStorage:', retryError);
+          // Continue anyway - scores will still show in current session
+        }
+      }
+    }
 
     setGameState('gameover');
   };
 
   const handlePlayAgain = () => {
-    const audio = new Audio('/audio/sfx_click.mp3');
-    audio.play().catch(() => {});
+    playClickSound();
     setSelectedShip(null);
     setGameState('select');
   };
@@ -235,10 +274,12 @@ function App() {
       )}
 
       {gameState === 'playing' && selectedShip && (
-        <GameComponent
-          selectedShip={selectedShip}
-          onGameOver={handleGameOver}
-        />
+        <ErrorBoundary onReset={() => setGameState('menu')}>
+          <GameComponent
+            selectedShip={selectedShip}
+            onGameOver={handleGameOver}
+          />
+        </ErrorBoundary>
       )}
 
       {gameState === 'gameover' && (

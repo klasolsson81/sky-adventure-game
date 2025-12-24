@@ -179,7 +179,6 @@ export default class GameScene extends Phaser.Scene {
   update(time, delta) {
     if (this.isGameOver) return;
 
-    const width = this.scale.width;
     const height = this.scale.height;
     const moveSpeed = 400;
 
@@ -405,7 +404,7 @@ export default class GameScene extends Phaser.Scene {
     this.sound.play('sfx_star', { volume: 0.4 });
   }
 
-  hitEnemy(player, enemy) {
+  hitEnemy(player) {
     if (this.isGameOver) return;
 
     this.isGameOver = true;

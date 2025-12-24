@@ -1,10 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import Phaser from 'phaser';
 import GameScene from '../game/GameScene';
 
 function GameComponent({ selectedShip, onGameOver }) {
   const gameRef = useRef(null);
   const phaserGameRef = useRef(null);
+
+  // FIX #4: Stable callback ref to prevent unnecessary re-renders
+  const onGameOverRef = useRef(onGameOver);
+
+  useEffect(() => {
+    onGameOverRef.current = onGameOver;
+  }, [onGameOver]);
+
+  const stableOnGameOver = useCallback((score) => {
+    onGameOverRef.current?.(score);
+  }, []);
 
   useEffect(() => {
     if (!gameRef.current) return;
@@ -33,7 +44,7 @@ function GameComponent({ selectedShip, onGameOver }) {
 
     phaserGameRef.current.scene.start('GameScene', {
       selectedShip,
-      onGameOver
+      onGameOver: stableOnGameOver
     });
 
     return () => {
@@ -42,7 +53,7 @@ function GameComponent({ selectedShip, onGameOver }) {
         phaserGameRef.current = null;
       }
     };
-  }, [selectedShip, onGameOver]);
+  }, [selectedShip, stableOnGameOver]);
 
   return <div ref={gameRef} className="game-container"></div>;
 }
