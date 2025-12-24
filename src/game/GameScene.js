@@ -126,6 +126,35 @@ export default class GameScene extends Phaser.Scene {
     this.musicBg.play();
     this.engineSound.play();
 
+    // FIX #8: Pause functionality
+    this.isPaused = false;
+    this.pauseOverlay = null;
+
+    // Pause button (top-right corner)
+    const pauseButton = this.add.text(width - 80 * this.scaleRatio, 30 * this.scaleRatio, '⏸', {
+      fontFamily: 'Arial Black, sans-serif',
+      fontSize: `${Math.floor(48 * this.scaleRatio)}px`,
+      color: '#FFFFFF',
+      stroke: '#000000',
+      strokeThickness: Math.max(4, Math.floor(6 * this.scaleRatio))
+    })
+    .setInteractive({ useHandCursor: true })
+    .setScrollFactor(0)
+    .setDepth(1001)
+    .setOrigin(0.5);
+
+    pauseButton.on('pointerdown', () => {
+      this.togglePause();
+    });
+
+    // Keyboard shortcuts: ESC or P to pause/resume
+    this.input.keyboard.on('keydown-ESC', () => {
+      if (!this.isGameOver) this.togglePause();
+    });
+    this.input.keyboard.on('keydown-P', () => {
+      if (!this.isGameOver) this.togglePause();
+    });
+
     // Spawn timers
     this.starSpawnTimer = 0;
     this.enemySpawnTimer = 0;
@@ -177,7 +206,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    if (this.isGameOver) return;
+    if (this.isGameOver || this.isPaused) return;
 
     const height = this.scale.height;
     const moveSpeed = 400;
@@ -431,5 +460,79 @@ export default class GameScene extends Phaser.Scene {
 
   updateScoreDisplay() {
     this.scoreText.setText('Poäng: ' + this.score);
+  }
+
+  togglePause() {
+    this.isPaused = !this.isPaused;
+
+    if (this.isPaused) {
+      // Pause physics and audio
+      this.physics.pause();
+      this.musicBg.pause();
+      this.engineSound.pause();
+
+      // Create semi-transparent overlay
+      const width = this.scale.width;
+      const height = this.scale.height;
+
+      this.pauseOverlay = this.add.container(0, 0);
+      this.pauseOverlay.setDepth(5000);
+
+      // Dark background
+      const bg = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.8);
+
+      // Pause title
+      const title = this.add.text(width / 2, height * 0.3, 'PAUSAT', {
+        fontFamily: 'Arial Black, sans-serif',
+        fontSize: `${Math.floor(80 * this.scaleRatio)}px`,
+        color: '#FFD700',
+        stroke: '#000000',
+        strokeThickness: Math.max(6, Math.floor(10 * this.scaleRatio))
+      }).setOrigin(0.5);
+
+      // Instructions
+      const instructions = this.add.text(width / 2, height * 0.45, 'Tryck ESC eller P för att fortsätta', {
+        fontFamily: 'Arial, sans-serif',
+        fontSize: `${Math.floor(24 * this.scaleRatio)}px`,
+        color: '#FFFFFF'
+      }).setOrigin(0.5);
+
+      // Resume button (interactive)
+      const resumeBtn = this.add.text(width / 2, height * 0.6, '▶ Fortsätt', {
+        fontFamily: 'Arial Black, sans-serif',
+        fontSize: `${Math.floor(36 * this.scaleRatio)}px`,
+        color: '#4CAF50',
+        stroke: '#000000',
+        strokeThickness: Math.max(4, Math.floor(6 * this.scaleRatio))
+      })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+
+      resumeBtn.on('pointerover', () => {
+        resumeBtn.setScale(1.1);
+      });
+      resumeBtn.on('pointerout', () => {
+        resumeBtn.setScale(1.0);
+      });
+      resumeBtn.on('pointerdown', () => {
+        this.togglePause();
+      });
+
+      // Add all to container
+      this.pauseOverlay.add([bg, title, instructions, resumeBtn]);
+      this.pauseOverlay.setScrollFactor(0);
+
+    } else {
+      // Resume physics and audio
+      this.physics.resume();
+      this.musicBg.resume();
+      this.engineSound.resume();
+
+      // Remove overlay
+      if (this.pauseOverlay) {
+        this.pauseOverlay.destroy();
+        this.pauseOverlay = null;
+      }
+    }
   }
 }
