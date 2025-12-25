@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Error Boundary to catch Phaser game crashes and prevent white screen of death
@@ -209,5 +210,10 @@ class ErrorBoundary extends Component {
     return this.props.children;
   }
 }
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+  onReset: PropTypes.func
+};
 
 export default ErrorBoundary;

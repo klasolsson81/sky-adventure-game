@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import Phaser from 'phaser';
 import GameScene from '../game/GameScene';
 
@@ -57,5 +58,10 @@ function GameComponent({ selectedShip, onGameOver }) {
 
   return <div ref={gameRef} className="game-container"></div>;
 }
+
+GameComponent.propTypes = {
+  selectedShip: PropTypes.oneOf(['alexander', 'klas', 'bhing']).isRequired,
+  onGameOver: PropTypes.func.isRequired
+};
 
 export default GameComponent;
