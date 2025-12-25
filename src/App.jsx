@@ -448,7 +448,18 @@ function App() {
       )}
 
       {/* Copyright Footer - Visible on all screens */}
-      <div className="copyright">{t.footer.copyright}</div>
+      <div className="copyright">
+        {t.footer.madeBy}{' '}
+        <a
+          href="https://klasolsson.se"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="copyright-link"
+        >
+          {t.footer.website}
+        </a>
+        {' '}{t.footer.copyright}
+      </div>
 
       {/* Vercel Analytics */}
       <Analytics />

@@ -70,7 +70,9 @@ export const translations = {
       understood: '✓ Jag förstår'
     },
     footer: {
-      copyright: '© Klas Olsson 2025'
+      copyright: '© Klas Olsson 2025',
+      madeBy: 'Skapad av',
+      website: 'klasolsson.se'
     }
   },
   en: {
@@ -137,7 +139,9 @@ export const translations = {
       understood: '✓ I understand'
     },
     footer: {
-      copyright: '© Klas Olsson 2025'
+      copyright: '© Klas Olsson 2025',
+      madeBy: 'Created by',
+      website: 'klasolsson.se'
     }
   }
 };
