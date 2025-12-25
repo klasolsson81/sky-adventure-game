@@ -178,8 +178,12 @@ function App() {
     // Capitalize pilot name
     const pilotName = selectedShip.charAt(0).toUpperCase() + selectedShip.slice(1);
 
-    // Create new score entry
-    const newEntry = { name: pilotName, score: finalScore };
+    // Create new score entry with unique ID (FIX #14: stable keys)
+    const newEntry = {
+      id: Date.now(),
+      name: pilotName,
+      score: finalScore
+    };
 
     // Update high scores - Top 10
     const newHighScores = [...highScores, newEntry]
@@ -363,7 +367,7 @@ function App() {
                   const isCurrentScore = idx === firstMatchIndex && firstMatchIndex !== -1;
                   return (
                     <li
-                      key={idx}
+                      key={entry.id || `${entry.name}-${entry.score}-${idx}`}
                       className={isCurrentScore ? 'current-highscore' : ''}
                     >
                       {entry.name} - {entry.score}
