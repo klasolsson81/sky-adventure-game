@@ -45,9 +45,9 @@ Sky High Adventures är ett webbläsarbaserat endless runner-spel utvecklat med 
 |----------|-------|-------|----------|
 | **Kritiska** | 3 | 3 ✅ | 0 |
 | **Höga** | 5 | 5 ✅ | 0 |
-| **Medelstora** | 8 | 3 ✅ | 5 |
+| **Medelstora** | 8 | 6 ✅ | 2 |
 | **Låga** | 7 | 0 | 7 |
-| **TOTALT** | **23** | **11** | **12** |
+| **TOTALT** | **23** | **14** | **9** |
 
 **Status:** ✅ PRODUKTIONSKLAR (alla kritiska issues lösta!)
 
