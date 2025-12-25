@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/react';
 import GameComponent from './components/GameComponent';
 import ErrorBoundary from './components/ErrorBoundary';
 import InstallAppPrompt from './components/InstallAppPrompt';
+import Modal from './components/Modal';
 import './index.css';
 
 function App() {
@@ -252,15 +253,14 @@ function App() {
       <InstallAppPrompt onDismiss={handleInstallPromptDismiss} />
 
       {/* Portrait Mode Overlay - Only show after install prompt dismissed */}
-      {isPortrait && installPromptDismissed && (
-        <div className="rotate-overlay">
-          <div className="rotate-content">
-            <div className="rotate-icon">📱 ↻</div>
-            <h2>Vänligen rotera telefonen</h2>
-            <p>Spelet spelas bäst i liggande läge</p>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={isPortrait && installPromptDismissed}
+        icon="📱 ↻"
+        title="Vänligen rotera telefonen"
+        className="rotate-overlay"
+      >
+        <p>Spelet spelas bäst i liggande läge</p>
+      </Modal>
 
       {gameState === 'menu' && (
         <div className="menu-screen">
@@ -283,27 +283,26 @@ function App() {
       )}
 
       {/* Fullscreen Warning Modal for Mobile */}
-      {showFullscreenWarning && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>⚠️ Helskärmsläge</h2>
-            <p>
-              Spelet är optimerat för PC och fungerar bäst på mobil i helskärmsläge.
-            </p>
-            <p className="modal-subtitle">
-              Vill du aktivera helskärmsläge för bästa upplevelse?
-            </p>
-            <div className="modal-buttons">
-              <button className="modal-button primary" onClick={handleStartWithFullscreen}>
-                🖵 Starta med Helskärm
-              </button>
-              <button className="modal-button secondary" onClick={handleStartWithoutFullscreen}>
-                Fortsätt utan
-              </button>
-            </div>
-          </div>
+      <Modal
+        isOpen={showFullscreenWarning}
+        icon="⚠️"
+        title="Helskärmsläge"
+      >
+        <p>
+          Spelet är optimerat för PC och fungerar bäst på mobil i helskärmsläge.
+        </p>
+        <p className="modal-subtitle">
+          Vill du aktivera helskärmsläge för bästa upplevelse?
+        </p>
+        <div className="modal-buttons">
+          <button className="modal-button primary" onClick={handleStartWithFullscreen}>
+            🖵 Starta med Helskärm
+          </button>
+          <button className="modal-button secondary" onClick={handleStartWithoutFullscreen}>
+            Fortsätt utan
+          </button>
         </div>
-      )}
+      </Modal>
 
       {gameState === 'select' && (
         <div className="select-screen">
