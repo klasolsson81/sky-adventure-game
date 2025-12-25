@@ -3,6 +3,7 @@ import * as GAME from '../config/gameConstants.js';
 import { ParallaxSystem } from './systems/ParallaxSystem.js';
 import { SpawnSystem } from './systems/SpawnSystem.js';
 import { DifficultySystem } from './systems/DifficultySystem.js';
+import { getTranslations } from '../i18n/translations.js';
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -12,6 +13,8 @@ export default class GameScene extends Phaser.Scene {
   init(data) {
     this.selectedShip = data.selectedShip;
     this.onGameOverCallback = data.onGameOver;
+    this.lang = data.lang || 'sv';
+    this.t = getTranslations(this.lang);
   }
 
   preload() {
@@ -101,7 +104,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Dynamic font size based on scaleRatio - larger and more visible
     const fontSize = Math.floor(GAME.UI.SCORE_FONT_SIZE * this.scaleRatio);
-    this.scoreText = this.add.text(GAME.UI.SCORE_TEXT_X * this.scaleRatio, GAME.UI.SCORE_TEXT_Y * this.scaleRatio, 'Poäng: 0', {
+    this.scoreText = this.add.text(GAME.UI.SCORE_TEXT_X * this.scaleRatio, GAME.UI.SCORE_TEXT_Y * this.scaleRatio, `${this.t.game.score} 0`, {
       fontFamily: 'Arial Black, sans-serif',
       fontSize: `${fontSize}px`,
       color: GAME.COLORS.SCORE_TEXT_COLOR,  // White with strong shadow
@@ -261,7 +264,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   updateScoreDisplay() {
-    this.scoreText.setText('Poäng: ' + this.score);
+    this.scoreText.setText(`${this.t.game.score} ${this.score}`);
   }
 
   togglePause() {
@@ -284,7 +287,7 @@ export default class GameScene extends Phaser.Scene {
       const bg = this.add.rectangle(width / 2, height / 2, width, height, GAME.COLORS.PAUSE_OVERLAY_BG, GAME.COLORS.PAUSE_OVERLAY_ALPHA);
 
       // Pause title
-      const title = this.add.text(width / 2, height * GAME.UI.PAUSE_TITLE_Y_RATIO, 'PAUSAT', {
+      const title = this.add.text(width / 2, height * GAME.UI.PAUSE_TITLE_Y_RATIO, this.t.game.paused, {
         fontFamily: 'Arial Black, sans-serif',
         fontSize: `${Math.floor(GAME.UI.PAUSE_TITLE_FONT_SIZE * this.scaleRatio)}px`,
         color: GAME.COLORS.PAUSE_TITLE_COLOR,
@@ -293,14 +296,14 @@ export default class GameScene extends Phaser.Scene {
       }).setOrigin(0.5);
 
       // Instructions
-      const instructions = this.add.text(width / 2, height * GAME.UI.PAUSE_INSTRUCTIONS_Y_RATIO, 'Tryck ESC eller P för att fortsätta', {
+      const instructions = this.add.text(width / 2, height * GAME.UI.PAUSE_INSTRUCTIONS_Y_RATIO, this.t.game.pauseInstructions, {
         fontFamily: 'Arial, sans-serif',
         fontSize: `${Math.floor(GAME.UI.PAUSE_INSTRUCTIONS_FONT_SIZE * this.scaleRatio)}px`,
         color: GAME.COLORS.PAUSE_TEXT_COLOR
       }).setOrigin(0.5);
 
       // Resume button (interactive)
-      const resumeBtn = this.add.text(width / 2, height * GAME.UI.PAUSE_RESUME_Y_RATIO, '▶ Fortsätt', {
+      const resumeBtn = this.add.text(width / 2, height * GAME.UI.PAUSE_RESUME_Y_RATIO, this.t.game.resumeButton, {
         fontFamily: 'Arial Black, sans-serif',
         fontSize: `${Math.floor(GAME.UI.PAUSE_RESUME_FONT_SIZE * this.scaleRatio)}px`,
         color: GAME.COLORS.RESUME_BUTTON_COLOR,

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Phaser from 'phaser';
 import GameScene from '../game/GameScene';
 
-function GameComponent({ selectedShip, onGameOver }) {
+function GameComponent({ selectedShip, onGameOver, lang = 'sv' }) {
   const gameRef = useRef(null);
   const phaserGameRef = useRef(null);
 
@@ -71,7 +71,8 @@ function GameComponent({ selectedShip, onGameOver }) {
     // Start the scene
     phaserGameRef.current.scene.start('GameScene', {
       selectedShip,
-      onGameOver: stableOnGameOver
+      onGameOver: stableOnGameOver,
+      lang
     });
 
     // Listen for scene load events
@@ -96,7 +97,7 @@ function GameComponent({ selectedShip, onGameOver }) {
         phaserGameRef.current = null;
       }
     };
-  }, [selectedShip, stableOnGameOver]);
+  }, [selectedShip, stableOnGameOver, lang]);
 
   // FIX #13: Show loading screen while assets load
   if (isLoading) {
@@ -267,7 +268,8 @@ function GameComponent({ selectedShip, onGameOver }) {
 
 GameComponent.propTypes = {
   selectedShip: PropTypes.oneOf(['alexander', 'klas', 'bhing']).isRequired,
-  onGameOver: PropTypes.func.isRequired
+  onGameOver: PropTypes.func.isRequired,
+  lang: PropTypes.oneOf(['sv', 'en'])
 };
 
 export default GameComponent;

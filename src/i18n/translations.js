@@ -23,6 +23,12 @@ export const translations = {
     select: {
       title: 'Välj din pilot'
     },
+    game: {
+      score: 'Poäng:',
+      paused: 'PAUSAT',
+      pauseInstructions: 'Tryck ESC eller P för att fortsätta',
+      resumeButton: '▶ Fortsätt'
+    },
     gameover: {
       title: 'Game Over!',
       yourScore: 'Din poäng:',
@@ -91,6 +97,12 @@ export const translations = {
     },
     select: {
       title: 'Choose your pilot'
+    },
+    game: {
+      score: 'Score:',
+      paused: 'PAUSED',
+      pauseInstructions: 'Press ESC or P to continue',
+      resumeButton: '▶ Resume'
     },
     gameover: {
       title: 'Game Over!',

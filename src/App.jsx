@@ -403,6 +403,7 @@ function App() {
           <GameComponent
             selectedShip={selectedShip}
             onGameOver={handleGameOver}
+            lang={lang}
           />
         </ErrorBoundary>
       )}
