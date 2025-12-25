@@ -91,6 +91,62 @@ All game parameters are centralized in `src/config/gameConstants.js`:
 
 ## Recent Changes
 
+### 2025-12-25 - Session 6 (Mobile UX Flow Fix)
+
+**Critical Mobile UX Issue**
+
+**Problem:**
+- User visits on mobile in portrait mode
+- Sees "rotate screen" overlay FIRST (blocks entire screen)
+- Install prompt renders behind rotate overlay → invisible, can't interact
+- No scrolling possible, confusing experience
+- User can't see or respond to install prompt
+
+**Solution: Prioritized Flow**
+
+1. **Install Prompt Shows First** ✅
+   - Added `onDismiss` callback prop to InstallAppPrompt component
+   - App.jsx tracks `installPromptDismissed` state
+   - Smart initialization (checks localStorage, standalone mode, mobile detection)
+   - Install prompt has highest z-index priority
+
+2. **Rotate Overlay Only After Dismissal** ✅
+   - Rotate overlay condition: `isPortrait && installPromptDismissed`
+   - Only shows if user dismissed install prompt AND is in portrait mode
+   - If app installed → no rotate overlay needed (app handles orientation)
+
+**New Mobile Flow:**
+
+```
+Mobile User Visits
+    ↓
+Install Prompt Shows (portrait or landscape)
+    ↓
+User Chooses:
+├─ Install App → App installs → Game starts (no rotate prompt)
+├─ Play in Browser → Prompt dismisses → Rotate overlay (if portrait)
+└─ Remind Later → Prompt dismisses → Rotate overlay (if portrait)
+```
+
+**Technical Implementation:**
+- InstallAppPrompt: Added PropTypes for `onDismiss` callback
+- App.jsx: Added `handleInstallPromptDismiss` handler
+- State initialization uses same logic as InstallAppPrompt (avoids duplication issues)
+- Rotate overlay gated behind install prompt dismissal
+
+**Test Results:**
+- ✅ ESLint: No errors
+- ✅ Build: Successful
+- ✅ User feedback: Fixed issue from last.png screenshot
+
+**User Benefit:** Clear, logical flow - install prompt first, then rotate reminder only if needed
+
+**Files Modified:** `InstallAppPrompt.jsx`, `App.jsx`
+
+**Commit:** `8f01ba2`
+
+---
+
 ### 2025-12-25 - Session 5 (PropTypes Type Safety)
 
 **HIGH Priority Issue #5: NO TYPESCRIPT / PROPTYPES**
