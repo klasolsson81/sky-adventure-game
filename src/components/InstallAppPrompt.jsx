@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { getTranslations } from '../i18n/translations';
 
 /**
  * PWA Install Prompt for Mobile/Tablet
  * Shows on first visit, offers to install app or play in browser
+ * FIX #11: i18n support for install prompts
  */
-function InstallAppPrompt({ onDismiss }) {
+function InstallAppPrompt({ lang, onDismiss }) {
+  const t = getTranslations(lang || 'sv');
   // Initialize showPrompt based on conditions
   const [showPrompt, setShowPrompt] = useState(() => {
     const dismissed = localStorage.getItem('pwa-install-dismissed');
@@ -100,32 +103,32 @@ function InstallAppPrompt({ onDismiss }) {
       <div className="install-prompt-overlay">
         <div className="install-prompt-content">
           <div className="install-prompt-header">
-            <div className="install-prompt-icon">🎉</div>
-            <h2>Appen är installerad!</h2>
+            <div className="install-prompt-icon">{t.install.confirmIcon}</div>
+            <h2>{t.install.confirmTitle}</h2>
           </div>
 
           <p className="install-prompt-description">
-            Sky High Adventures har installerats på din enhet.
+            {t.install.confirmDescription}
           </p>
 
           <div className="install-confirmation-steps">
             <div className="confirmation-step">
               <div className="step-number">1</div>
-              <p>Stäng den här webbläsarfliken</p>
+              <p>{t.install.step1}</p>
             </div>
             <div className="confirmation-step">
               <div className="step-number">2</div>
-              <p>Hitta Sky High Adventures-ikonen på din hemskärm</p>
+              <p>{t.install.step2}</p>
             </div>
             <div className="confirmation-step">
               <div className="step-number">3</div>
-              <p>Tryck på ikonen för att öppna appen</p>
+              <p>{t.install.step3}</p>
             </div>
           </div>
 
           <div className="install-prompt-note">
             <small>
-              🏠 Leta efter det röda flygplanet bland dina appar!
+              {t.install.confirmNote}
             </small>
           </div>
 
@@ -134,7 +137,7 @@ function InstallAppPrompt({ onDismiss }) {
               className="install-button secondary"
               onClick={handleCloseConfirmation}
             >
-              ✓ Jag förstår
+              {t.install.understood}
             </button>
           </div>
 
@@ -206,19 +209,19 @@ function InstallAppPrompt({ onDismiss }) {
     <div className="install-prompt-overlay">
       <div className="install-prompt-content">
         <div className="install-prompt-header">
-          <div className="install-prompt-icon">📱</div>
-          <h2>Installera Sky High Adventures</h2>
+          <div className="install-prompt-icon">{t.install.installIcon}</div>
+          <h2>{t.install.installTitle}</h2>
         </div>
 
         <p className="install-prompt-description">
-          Få en bättre spelupplevelse! Installera appen för:
+          {t.install.installDescription}
         </p>
 
         <ul className="install-prompt-features">
-          <li>⚡ Snabbare laddning</li>
-          <li>📴 Spela offline</li>
-          <li>🏠 Egen ikon på hemskärmen</li>
-          <li>🎮 Helskärmsläge automatiskt</li>
+          <li>{t.install.features.faster}</li>
+          <li>{t.install.features.offline}</li>
+          <li>{t.install.features.homescreen}</li>
+          <li>{t.install.features.fullscreen}</li>
         </ul>
 
         <div className="install-prompt-buttons">
@@ -227,7 +230,7 @@ function InstallAppPrompt({ onDismiss }) {
               className="install-button primary"
               onClick={handleInstall}
             >
-              📲 Installera App
+              {t.install.installButton}
             </button>
           )}
 
@@ -235,22 +238,22 @@ function InstallAppPrompt({ onDismiss }) {
             className="install-button secondary"
             onClick={handlePlayInBrowser}
           >
-            🌐 Spela i Webbläsaren
+            {t.install.playInBrowser}
           </button>
 
           <button
             className="install-button tertiary"
             onClick={handleRemindLater}
           >
-            ⏰ Påminn Senare
+            {t.install.remindLater}
           </button>
         </div>
 
         <p className="install-prompt-note">
           <small>
             {deferredPrompt
-              ? 'Tryck "Installera App" för att lägga till på hemskärmen'
-              : 'Gå till webbläsarens meny och välj "Lägg till på hemskärmen"'}
+              ? t.install.installNote
+              : t.install.manualInstall}
           </small>
         </p>
       </div>
@@ -454,6 +457,7 @@ function InstallAppPrompt({ onDismiss }) {
 }
 
 InstallAppPrompt.propTypes = {
+  lang: PropTypes.string,
   onDismiss: PropTypes.func
 };
 

@@ -1,9 +1,11 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
+import { getTranslations } from '../i18n/translations';
 
 /**
  * Error Boundary to catch Phaser game crashes and prevent white screen of death
  * FIX #2: Prevents Phaser errors from crashing the entire React app
+ * FIX #11: i18n support for error messages
  */
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -53,17 +55,19 @@ class ErrorBoundary extends Component {
 
   render() {
     if (this.state.hasError) {
+      const t = getTranslations(this.props.lang || 'sv');
+
       return (
         <div className="error-boundary-fallback">
           <div className="error-content">
-            <h1 className="error-title">😵 Oops! Något gick fel</h1>
+            <h1 className="error-title">{t.error.title}</h1>
             <p className="error-message">
-              Spelet stötte på ett oväntat problem. Försök ladda om sidan eller starta om spelet.
+              {t.error.message}
             </p>
 
             {import.meta.env.MODE === 'development' && this.state.error && (
               <details className="error-details">
-                <summary>Teknisk information (endast synlig i development)</summary>
+                <summary>{t.error.technicalInfo}</summary>
                 <pre className="error-stack">
                   {this.state.error.toString()}
                   {this.state.errorInfo?.componentStack}
@@ -76,13 +80,13 @@ class ErrorBoundary extends Component {
                 className="error-button primary"
                 onClick={this.handleReset}
               >
-                🔄 Försök igen
+                {t.error.tryAgain}
               </button>
               <button
                 className="error-button secondary"
                 onClick={() => window.location.reload()}
               >
-                🔃 Ladda om sidan
+                {t.error.reloadPage}
               </button>
             </div>
           </div>
@@ -213,6 +217,7 @@ class ErrorBoundary extends Component {
 
 ErrorBoundary.propTypes = {
   children: PropTypes.node.isRequired,
+  lang: PropTypes.string,
   onReset: PropTypes.func
 };
 

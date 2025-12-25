@@ -4,6 +4,7 @@ import GameComponent from './components/GameComponent';
 import ErrorBoundary from './components/ErrorBoundary';
 import InstallAppPrompt from './components/InstallAppPrompt';
 import Modal from './components/Modal';
+import { getTranslations, LANGUAGES } from './i18n/translations';
 import './index.css';
 
 function App() {
@@ -13,6 +14,12 @@ function App() {
   const [isPortrait, setIsPortrait] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showFullscreenWarning, setShowFullscreenWarning] = useState(false);
+
+  // FIX #11: i18n - Language support (Swedish/English)
+  const [lang, setLang] = useState(() => {
+    const saved = localStorage.getItem('gameLanguage');
+    return saved || LANGUAGES.SV; // Default to Swedish
+  });
 
   // Detect if running as installed PWA (standalone mode)
   const [isStandalone] = useState(() => {
@@ -45,6 +52,16 @@ function App() {
       return [];
     }
   });
+
+  // Get translations for current language
+  const t = getTranslations(lang);
+
+  // Toggle language between Swedish and English
+  const toggleLanguage = () => {
+    const newLang = lang === LANGUAGES.SV ? LANGUAGES.EN : LANGUAGES.SV;
+    setLang(newLang);
+    localStorage.setItem('gameLanguage', newLang);
+  };
 
   // FIX #1: Singleton Audio instances to prevent memory leaks
   const audioRef = useRef(null);
@@ -254,24 +271,24 @@ function App() {
   return (
     <div className="app">
       {/* PWA Install Prompt - Shows on mobile/tablet first visit */}
-      <InstallAppPrompt onDismiss={handleInstallPromptDismiss} />
+      <InstallAppPrompt lang={lang} onDismiss={handleInstallPromptDismiss} />
 
       {/* Portrait Mode Overlay - Only show after install prompt dismissed */}
       <Modal
         isOpen={isPortrait && installPromptDismissed}
-        icon="📱 ↻"
-        title="Vänligen rotera telefonen"
+        icon={t.rotate.icon}
+        title={t.rotate.title}
         className="rotate-overlay"
       >
-        <p>Spelet spelas bäst i liggande läge</p>
+        <p>{t.rotate.description}</p>
       </Modal>
 
       {gameState === 'menu' && (
         <div className="menu-screen">
-          <h1 className="game-title">Sky High Adventures</h1>
+          <h1 className="game-title">{t.menu.title}</h1>
           <div className="button-container">
             <button className="start-button" onClick={handleStartClick}>
-              Starta Spel
+              {t.menu.startGame}
             </button>
             {/* Only show fullscreen toggle in browser mode, not in installed PWA */}
             {!isStandalone && (
@@ -279,10 +296,15 @@ function App() {
                 className="fullscreen-toggle-button"
                 onClick={handleFullscreen}
               >
-                {isFullscreen ? '⊗ Avsluta\nHelskärm' : '🖵 Aktivera\nHelskärm'}
+                {isFullscreen ? t.menu.fullscreenExit : t.menu.fullscreenEnable}
               </button>
             )}
           </div>
+
+          {/* Language Toggle Button */}
+          <button className="language-toggle" onClick={toggleLanguage}>
+            {lang === LANGUAGES.SV ? '🇬🇧 English' : '🇸🇪 Svenska'}
+          </button>
         </div>
       )}
 
@@ -290,27 +312,27 @@ function App() {
       <Modal
         isOpen={showFullscreenWarning}
         icon="⚠️"
-        title="Helskärmsläge"
+        title={t.fullscreenModal.title}
       >
         <p>
-          Spelet är optimerat för PC och fungerar bäst på mobil i helskärmsläge.
+          {t.fullscreenModal.description}
         </p>
         <p className="modal-subtitle">
-          Vill du aktivera helskärmsläge för bästa upplevelse?
+          {t.fullscreenModal.question}
         </p>
         <div className="modal-buttons">
           <button className="modal-button primary" onClick={handleStartWithFullscreen}>
-            🖵 Starta med Helskärm
+            {t.fullscreenModal.startWithFullscreen}
           </button>
           <button className="modal-button secondary" onClick={handleStartWithoutFullscreen}>
-            Fortsätt utan
+            {t.fullscreenModal.continueWithout}
           </button>
         </div>
       </Modal>
 
       {gameState === 'select' && (
         <div className="select-screen">
-          <h2 className="select-title">Välj din pilot</h2>
+          <h2 className="select-title">{t.select.title}</h2>
           <div className="ship-container">
             <div
               className="ship-option"
@@ -338,7 +360,7 @@ function App() {
       )}
 
       {gameState === 'playing' && selectedShip && (
-        <ErrorBoundary onReset={() => setGameState('menu')}>
+        <ErrorBoundary lang={lang} onReset={() => setGameState('menu')}>
           <GameComponent
             selectedShip={selectedShip}
             onGameOver={handleGameOver}
@@ -348,15 +370,15 @@ function App() {
 
       {gameState === 'gameover' && (
         <div className="gameover-screen">
-          <h1 className="gameover-title">Game Over!</h1>
+          <h1 className="gameover-title">{t.gameover.title}</h1>
           <div className="score-display">
-            <p className="final-score">Din poäng: {score}</p>
+            <p className="final-score">{t.gameover.yourScore} {score}</p>
           </div>
           <button className="play-again-button" onClick={handlePlayAgain}>
-            Spela igen
+            {t.gameover.playAgain}
           </button>
           <div className="highscore-display">
-            <h3>Top 10 High Scores</h3>
+            <h3>{t.gameover.highScoresTitle}</h3>
             <ol>
               {highScores.length > 0 ? (
                 highScores.map((entry, idx) => {
@@ -375,7 +397,7 @@ function App() {
                   );
                 })
               ) : (
-                <li>Inga rekord än</li>
+                <li>{t.gameover.noRecords}</li>
               )}
             </ol>
           </div>
@@ -383,7 +405,7 @@ function App() {
       )}
 
       {/* Copyright Footer - Visible on all screens */}
-      <div className="copyright">© Klas Olsson 2025</div>
+      <div className="copyright">{t.footer.copyright}</div>
 
       {/* Vercel Analytics */}
       <Analytics />
