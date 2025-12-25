@@ -147,6 +147,52 @@ User Chooses:
 
 ---
 
+**Follow-up: Installation Confirmation Screen** ✅
+
+**Additional Problem:**
+- After installing PWA, user stays in browser
+- Unclear that app was actually installed on device
+- User doesn't know where to find the app icon
+
+**Solution: Post-Installation Guidance**
+
+1. **Success Confirmation Screen** ✅
+   - Triggers when user accepts PWA installation
+   - Shows celebration icon (🎉) and "Appen är installerad!"
+   - 3-step numbered guide with visual design:
+     1. Close browser tab
+     2. Find app icon on home screen
+     3. Open the installed app
+   - Friendly reminder: "Leta efter det röda flygplanet" 🏠
+   - "Jag förstår" button to dismiss
+
+2. **Technical Implementation** ✅
+   - Added `showConfirmation` state to InstallAppPrompt
+   - Modified `handleInstall` to check `outcome === 'accepted'`
+   - If accepted → show confirmation, keep overlay visible
+   - If declined → dismiss normally
+   - `handleCloseConfirmation` dismisses and calls `onDismiss`
+   - Green gradient numbered steps with left border accent
+
+**Updated Flow:**
+```
+User clicks "Installera App"
+    ↓
+Browser PWA install prompt shows
+    ↓
+User chooses:
+├─ Accept → Confirmation screen (3-step guide) → User clicks "Jag förstår" → Close browser → Open installed app
+└─ Decline → Dismiss normally → Rotate overlay (if portrait)
+```
+
+**User Benefit:** Clear post-installation guidance, better app discovery
+
+**Files Modified:** `InstallAppPrompt.jsx`
+
+**Commit:** `8544905`
+
+---
+
 ### 2025-12-25 - Session 5 (PropTypes Type Safety)
 
 **HIGH Priority Issue #5: NO TYPESCRIPT / PROPTYPES**
