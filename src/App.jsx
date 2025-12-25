@@ -287,7 +287,11 @@ function App() {
         <div className="menu-screen">
           <h1 className="game-title">{t.menu.title}</h1>
           <div className="button-container">
-            <button className="start-button" onClick={handleStartClick}>
+            <button
+              className="start-button"
+              onClick={handleStartClick}
+              aria-label={lang === LANGUAGES.SV ? 'Starta spelet' : 'Start the game'}
+            >
               {t.menu.startGame}
             </button>
             {/* Only show fullscreen toggle in browser mode, not in installed PWA */}
@@ -295,6 +299,10 @@ function App() {
               <button
                 className="fullscreen-toggle-button"
                 onClick={handleFullscreen}
+                aria-label={isFullscreen
+                  ? (lang === LANGUAGES.SV ? 'Avsluta helskärmsläge' : 'Exit fullscreen mode')
+                  : (lang === LANGUAGES.SV ? 'Aktivera helskärmsläge' : 'Enable fullscreen mode')
+                }
               >
                 {isFullscreen ? t.menu.fullscreenExit : t.menu.fullscreenEnable}
               </button>
@@ -302,7 +310,11 @@ function App() {
           </div>
 
           {/* Language Toggle Button */}
-          <button className="language-toggle" onClick={toggleLanguage}>
+          <button
+            className="language-toggle"
+            onClick={toggleLanguage}
+            aria-label={lang === LANGUAGES.SV ? 'Switch to English' : 'Byt till Svenska'}
+          >
             {lang === LANGUAGES.SV ? '🇬🇧 English' : '🇸🇪 Svenska'}
           </button>
         </div>
@@ -333,27 +345,54 @@ function App() {
       {gameState === 'select' && (
         <div className="select-screen">
           <h2 className="select-title">{t.select.title}</h2>
-          <div className="ship-container">
+          <div className="ship-container" role="group" aria-label={lang === LANGUAGES.SV ? 'Välj pilot' : 'Select pilot'}>
             <div
               className="ship-option"
               onClick={() => handleShipSelect('alexander')}
               onMouseEnter={handleShipHover}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleShipSelect('alexander');
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label={lang === LANGUAGES.SV ? 'Välj Alexander som pilot' : 'Select Alexander as pilot'}
             >
-              <img src="/images/select_frame_alexander.png" alt="Alexander" />
+              <img src="/images/select_frame_alexander.png" alt={lang === LANGUAGES.SV ? 'Alexander pilot' : 'Alexander pilot'} />
             </div>
             <div
               className="ship-option"
               onClick={() => handleShipSelect('klas')}
               onMouseEnter={handleShipHover}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleShipSelect('klas');
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label={lang === LANGUAGES.SV ? 'Välj Klas som pilot' : 'Select Klas as pilot'}
             >
-              <img src="/images/select_frame_klas.png" alt="Klas" />
+              <img src="/images/select_frame_klas.png" alt={lang === LANGUAGES.SV ? 'Klas pilot' : 'Klas pilot'} />
             </div>
             <div
               className="ship-option"
               onClick={() => handleShipSelect('bhing')}
               onMouseEnter={handleShipHover}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleShipSelect('bhing');
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label={lang === LANGUAGES.SV ? 'Välj Bhing som pilot' : 'Select Bhing as pilot'}
             >
-              <img src="/images/select_frame_bhing.png" alt="Bhing" />
+              <img src="/images/select_frame_bhing.png" alt={lang === LANGUAGES.SV ? 'Bhing pilot' : 'Bhing pilot'} />
             </div>
           </div>
         </div>
@@ -371,10 +410,14 @@ function App() {
       {gameState === 'gameover' && (
         <div className="gameover-screen">
           <h1 className="gameover-title">{t.gameover.title}</h1>
-          <div className="score-display">
+          <div className="score-display" aria-live="polite" aria-atomic="true">
             <p className="final-score">{t.gameover.yourScore} {score}</p>
           </div>
-          <button className="play-again-button" onClick={handlePlayAgain}>
+          <button
+            className="play-again-button"
+            onClick={handlePlayAgain}
+            aria-label={lang === LANGUAGES.SV ? 'Spela igen' : 'Play again'}
+          >
             {t.gameover.playAgain}
           </button>
           <div className="highscore-display">

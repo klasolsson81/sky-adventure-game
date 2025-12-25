@@ -1,0 +1,11 @@
+# robots.txt for Sky High Adventures
+# https://skyadventuregame.klasolsson.se
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://skyadventuregame.klasolsson.se/sitemap.xml
+
+# Disallow admin paths (if any in future)
+# Disallow: /admin/

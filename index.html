@@ -3,8 +3,17 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Favicon & App Icon - Red Plane -->
+    <!-- Favicon & App Icon - Adaptive for light/dark mode -->
+    <!-- Light mode favicon (red plane visible on light backgrounds) -->
+    <link rel="icon" type="image/png" href="/images/ship_red.png" media="(prefers-color-scheme: light)" />
+
+    <!-- Dark mode favicon (purple plane visible on dark backgrounds) -->
+    <link rel="icon" type="image/png" href="/images/ship_purple.png" media="(prefers-color-scheme: dark)" />
+
+    <!-- Fallback favicon for browsers that don't support media queries -->
     <link rel="icon" type="image/png" href="/images/ship_red.png" />
+
+    <!-- Apple touch icon -->
     <link rel="apple-touch-icon" href="/images/ship_red.png" />
 
     <!-- PWA Manifest -->
