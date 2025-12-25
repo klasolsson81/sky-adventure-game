@@ -12,6 +12,17 @@ function App() {
   const [isPortrait, setIsPortrait] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showFullscreenWarning, setShowFullscreenWarning] = useState(false);
+
+  // Track if install prompt should show (same logic as InstallAppPrompt component)
+  const [installPromptDismissed, setInstallPromptDismissed] = useState(() => {
+    const dismissed = localStorage.getItem('pwa-install-dismissed');
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                        window.navigator.standalone === true;
+
+    // If already dismissed, in standalone mode, or not mobile → consider dismissed
+    return dismissed || isStandalone || !isMobile;
+  });
   const [highScores, setHighScores] = useState(() => {
     const saved = localStorage.getItem('skyHighScores');
     if (!saved) return [];
@@ -227,13 +238,17 @@ function App() {
     }
   };
 
+  const handleInstallPromptDismiss = () => {
+    setInstallPromptDismissed(true);
+  };
+
   return (
     <div className="app">
       {/* PWA Install Prompt - Shows on mobile/tablet first visit */}
-      <InstallAppPrompt />
+      <InstallAppPrompt onDismiss={handleInstallPromptDismiss} />
 
-      {/* Portrait Mode Overlay - Force Landscape */}
-      {isPortrait && (
+      {/* Portrait Mode Overlay - Only show after install prompt dismissed */}
+      {isPortrait && installPromptDismissed && (
         <div className="rotate-overlay">
           <div className="rotate-content">
             <div className="rotate-icon">📱 ↻</div>

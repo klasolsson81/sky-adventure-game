@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * PWA Install Prompt for Mobile/Tablet
  * Shows on first visit, offers to install app or play in browser
  */
-function InstallAppPrompt() {
+function InstallAppPrompt({ onDismiss }) {
   // Initialize showPrompt based on conditions
   const [showPrompt, setShowPrompt] = useState(() => {
     const dismissed = localStorage.getItem('pwa-install-dismissed');
@@ -47,16 +48,31 @@ function InstallAppPrompt() {
 
     setShowPrompt(false);
     localStorage.setItem('pwa-install-dismissed', 'true');
+
+    // Notify parent that prompt was dismissed
+    if (onDismiss) {
+      onDismiss();
+    }
   };
 
   const handlePlayInBrowser = () => {
     setShowPrompt(false);
     localStorage.setItem('pwa-install-dismissed', 'true');
+
+    // Notify parent that prompt was dismissed
+    if (onDismiss) {
+      onDismiss();
+    }
   };
 
   const handleRemindLater = () => {
     setShowPrompt(false);
     // Don't set localStorage, so it shows again next visit
+
+    // Notify parent that prompt was dismissed
+    if (onDismiss) {
+      onDismiss();
+    }
   };
 
   if (!showPrompt) return null;
@@ -311,5 +327,9 @@ function InstallAppPrompt() {
     </div>
   );
 }
+
+InstallAppPrompt.propTypes = {
+  onDismiss: PropTypes.func
+};
 
 export default InstallAppPrompt;
