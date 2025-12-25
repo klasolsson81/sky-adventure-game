@@ -29,6 +29,7 @@ export const SPEEDS = {
 
 // Difficulty Progression
 export const DIFFICULTY = {
+  SPEED_MULTIPLIER_START: 1.0, // Start at normal speed (1x)
   INCREASE_INTERVAL: 3000, // Every 3 seconds
   SPEED_INCREMENT: 0.1,    // +10% speed each interval
   BASE_STAR_SPAWN_INTERVAL: 3500,
