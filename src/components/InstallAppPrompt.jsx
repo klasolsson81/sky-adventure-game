@@ -18,6 +18,7 @@ function InstallAppPrompt({ onDismiss }) {
   });
 
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
 
@@ -41,11 +42,20 @@ function InstallAppPrompt({ onDismiss }) {
 
       if (outcome === 'accepted') {
         console.log('User accepted PWA install');
+
+        // Show confirmation screen instead of dismissing
+        setShowPrompt(false);
+        setShowConfirmation(true);
+        localStorage.setItem('pwa-install-dismissed', 'true');
+
+        // Don't call onDismiss yet - keep overlay visible for confirmation
+        return;
       }
 
       setDeferredPrompt(null);
     }
 
+    // If user declined or no deferredPrompt, just dismiss
     setShowPrompt(false);
     localStorage.setItem('pwa-install-dismissed', 'true');
 
@@ -74,6 +84,103 @@ function InstallAppPrompt({ onDismiss }) {
       onDismiss();
     }
   };
+
+  const handleCloseConfirmation = () => {
+    setShowConfirmation(false);
+
+    // Now notify parent and allow rotate overlay to show
+    if (onDismiss) {
+      onDismiss();
+    }
+  };
+
+  // Show confirmation screen after successful installation
+  if (showConfirmation) {
+    return (
+      <div className="install-prompt-overlay">
+        <div className="install-prompt-content">
+          <div className="install-prompt-header">
+            <div className="install-prompt-icon">🎉</div>
+            <h2>Appen är installerad!</h2>
+          </div>
+
+          <p className="install-prompt-description">
+            Sky High Adventures har installerats på din enhet.
+          </p>
+
+          <div className="install-confirmation-steps">
+            <div className="confirmation-step">
+              <div className="step-number">1</div>
+              <p>Stäng den här webbläsarfliken</p>
+            </div>
+            <div className="confirmation-step">
+              <div className="step-number">2</div>
+              <p>Hitta Sky High Adventures-ikonen på din hemskärm</p>
+            </div>
+            <div className="confirmation-step">
+              <div className="step-number">3</div>
+              <p>Tryck på ikonen för att öppna appen</p>
+            </div>
+          </div>
+
+          <div className="install-prompt-note">
+            <small>
+              🏠 Leta efter det röda flygplanet bland dina appar!
+            </small>
+          </div>
+
+          <div className="install-prompt-buttons">
+            <button
+              className="install-button secondary"
+              onClick={handleCloseConfirmation}
+            >
+              ✓ Jag förstår
+            </button>
+          </div>
+
+          <style>{`
+            .install-confirmation-steps {
+              margin: 2rem 0 1rem 0;
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
+            }
+
+            .confirmation-step {
+              display: flex;
+              align-items: center;
+              gap: 1rem;
+              padding: 1rem;
+              background: rgba(255, 255, 255, 0.05);
+              border-radius: 12px;
+              border-left: 4px solid #4CAF50;
+            }
+
+            .step-number {
+              background: linear-gradient(135deg, #4CAF50, #45a049);
+              color: white;
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: bold;
+              font-size: 1.2rem;
+              flex-shrink: 0;
+            }
+
+            .confirmation-step p {
+              margin: 0;
+              color: #fff;
+              font-size: 1.05rem;
+              line-height: 1.4;
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
 
   if (!showPrompt) return null;
 
