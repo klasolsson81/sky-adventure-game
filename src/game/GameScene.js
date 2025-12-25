@@ -148,11 +148,17 @@ export default class GameScene extends Phaser.Scene {
       this.togglePause();
     });
 
-    // Keyboard shortcuts: ESC or P to pause/resume
+    // Keyboard shortcuts: ESC, P, SPACE, or ENTER to pause/resume
     this.input.keyboard.on('keydown-ESC', () => {
       if (!this.isGameOver) this.togglePause();
     });
     this.input.keyboard.on('keydown-P', () => {
+      if (!this.isGameOver) this.togglePause();
+    });
+    this.input.keyboard.on('keydown-SPACE', () => {
+      if (!this.isGameOver) this.togglePause();
+    });
+    this.input.keyboard.on('keydown-ENTER', () => {
       if (!this.isGameOver) this.togglePause();
     });
 

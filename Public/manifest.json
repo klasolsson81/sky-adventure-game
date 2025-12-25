@@ -10,7 +10,7 @@
   "categories": ["games", "entertainment"],
   "icons": [
     {
-      "src": "/images/pickup_ifk.png",
+      "src": "/images/select_frame_alexander.png",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any maskable"
@@ -36,7 +36,7 @@
       "url": "/",
       "icons": [
         {
-          "src": "/images/pickup_ifk.png",
+          "src": "/images/select_frame_alexander.png",
           "sizes": "192x192"
         }
       ]
