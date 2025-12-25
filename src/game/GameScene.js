@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
 import * as GAME from '../config/gameConstants.js';
+import { ParallaxSystem } from './systems/ParallaxSystem.js';
+import { SpawnSystem } from './systems/SpawnSystem.js';
+import { DifficultySystem } from './systems/DifficultySystem.js';
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -47,11 +50,14 @@ export default class GameScene extends Phaser.Scene {
     // Game state
     this.isGameOver = false;
     this.score = 0;
-    this.speedMultiplier = 1;
-    this.baseScrollSpeed = GAME.SPEEDS.BASE_SCROLL;
 
     // Dynamic scale ratio based on screen height (baseline: 1080px)
     this.scaleRatio = height / 1080;
+
+    // Initialize game systems (FIX #6: Refactored from 545 lines to modular architecture)
+    this.parallaxSystem = new ParallaxSystem(this);
+    this.spawnSystem = new SpawnSystem(this);
+    this.difficultySystem = new DifficultySystem(this);
 
     // Set camera background to sky blue (prevents sub-pixel artifacts)
     this.cameras.main.setBackgroundColor(GAME.COLORS.SKY_BLUE);
@@ -64,11 +70,10 @@ export default class GameScene extends Phaser.Scene {
     sky.setScrollFactor(0);  // Lock in place
     sky.setDepth(GAME.DEPTHS.SKY);  // Behind everything
 
-    // Create parallax background (3 layers) - using single sprite per layer
-    this.bgLayers = [];
-    this.createParallaxLayer('bg_mountains', GAME.PARALLAX.MOUNTAINS_SCROLL_FACTOR, GAME.PARALLAX.MOUNTAINS_SCALE, true);  // Mountains smaller - positioned higher
-    this.createParallaxLayer('bg_hills', GAME.PARALLAX.HILLS_SCROLL_FACTOR, GAME.PARALLAX.HILLS_SCALE, true);      // Hills medium scroll
-    this.createParallaxLayer('bg_ground', GAME.PARALLAX.GROUND_SCROLL_FACTOR, GAME.PARALLAX.GROUND_SCALE, true);    // Ground fast scroll, covers more of bottom
+    // Create parallax background (3 layers) using ParallaxSystem
+    this.parallaxSystem.createLayer('bg_mountains', GAME.PARALLAX.MOUNTAINS_SCROLL_FACTOR, GAME.PARALLAX.MOUNTAINS_SCALE, true);
+    this.parallaxSystem.createLayer('bg_hills', GAME.PARALLAX.HILLS_SCROLL_FACTOR, GAME.PARALLAX.HILLS_SCALE, true);
+    this.parallaxSystem.createLayer('bg_ground', GAME.PARALLAX.GROUND_SCROLL_FACTOR, GAME.PARALLAX.GROUND_SCALE, true);
 
     // Determine ship image
     const shipImages = {
@@ -161,55 +166,6 @@ export default class GameScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-ENTER', () => {
       if (!this.isGameOver) this.togglePause();
     });
-
-    // Spawn timers
-    this.starSpawnTimer = 0;
-    this.enemySpawnTimer = 0;
-    this.difficultyTimer = 0;
-
-    // Base spawn intervals (will decrease with speedMultiplier)
-    this.baseStarSpawnInterval = GAME.DIFFICULTY.BASE_STAR_SPAWN_INTERVAL;
-    this.baseEnemySpawnInterval = GAME.DIFFICULTY.BASE_ENEMY_SPAWN_INTERVAL;
-  }
-
-  createParallaxLayer(key, scrollFactor, scale, anchorBottom = true) {
-    const gameWidth = this.scale.width;
-    const gameHeight = this.scale.height;
-
-    // Use tileSprite for seamless scrolling backgrounds
-    const tex = this.textures.get(key);
-    const texHeight = tex.getSourceImage().height;
-
-    // Apply responsive scaling
-    const responsiveScale = scale * this.scaleRatio;
-
-    // Calculate the physical height this layer should occupy
-    // Use Math.ceil to avoid sub-pixel rendering issues
-    const targetHeight = Math.ceil(texHeight * responsiveScale);
-
-    // Create a tileSprite that fills the FULL width, but has the scaled-down height
-    // Small 2px bleed for seamless edges (images are now properly cropped)
-    const sprite = this.add.tileSprite(gameWidth / 2, 0, gameWidth, targetHeight + 2, key);
-
-    if (anchorBottom) {
-      sprite.setOrigin(0.5, 1); // Anchor bottom-center
-      // Use Math.round to avoid sub-pixel positioning
-      sprite.setPosition(Math.round(gameWidth / 2), Math.round(gameHeight)); // Stick to bottom
-    } else {
-      sprite.setOrigin(0.5, 0); // Anchor top-center
-      sprite.setPosition(Math.round(gameWidth / 2), 0);
-      sprite.height = gameHeight;
-    }
-
-    sprite.setScrollFactor(0); // Fix to camera
-
-    // Scale the texture pattern, NOT the sprite object
-    sprite.setTileScale(responsiveScale, responsiveScale);
-
-    sprite.setDepth(this.bgLayers.length + 1);  // Start at depth 1 (sky is at 0)
-
-    // Store for update loop
-    this.bgLayers.push({ sprite, scrollFactor });
   }
 
   update(time, delta) {
@@ -261,176 +217,15 @@ export default class GameScene extends Phaser.Scene {
       this.player.y = height - groundMargin;
     }
 
-    // Update parallax background - scroll texture instead of moving sprites
-    const scrollSpeed = this.baseScrollSpeed * this.speedMultiplier;
-    this.bgLayers.forEach(layer => {
-      // Only update tilePosition for tileSprites (not regular images like bg_sky)
-      if (layer.sprite.tilePositionX !== undefined && layer.scrollFactor > 0) {
-        layer.sprite.tilePositionX += scrollSpeed * layer.scrollFactor;
-      }
-    });
+    // Update game systems (FIX #6: Clean separation of concerns)
+    const speedMultiplier = this.difficultySystem.getSpeedMultiplier();
+    const scrollSpeed = this.parallaxSystem.baseScrollSpeed * speedMultiplier;
 
-    // Aggressive difficulty progression - faster and more frequent
-    this.difficultyTimer += delta;
-    if (this.difficultyTimer > GAME.DIFFICULTY.INCREASE_INTERVAL) {  // Every 3 seconds (was 5000)
-      this.speedMultiplier += GAME.DIFFICULTY.SPEED_INCREMENT;       // Bigger jumps (was 0.05)
-      this.difficultyTimer = 0;
-    }
-
-    // Dynamic spawn intervals based on speedMultiplier
-    // As speed increases, spawns happen more frequently!
-    const currentStarInterval = this.baseStarSpawnInterval / this.speedMultiplier;
-    const currentEnemyInterval = this.baseEnemySpawnInterval / this.speedMultiplier;
-
-    // Spawn stars
-    this.starSpawnTimer += delta;
-    if (this.starSpawnTimer > currentStarInterval) {
-      this.spawnStarWave();
-      this.starSpawnTimer = 0;
-    }
-
-    // Spawn enemies
-    this.enemySpawnTimer += delta;
-    if (this.enemySpawnTimer > currentEnemyInterval) {
-      this.spawnEnemies();
-      this.enemySpawnTimer = 0;
-    }
-
-    // Move and clean up stars
-    this.stars.children.entries.forEach(star => {
-      star.x -= scrollSpeed * GAME.SPEEDS.STAR_SCROLL_MULTIPLIER;
-      if (star.x < GAME.SPAWN.STAR_CLEANUP_X) {
-        star.destroy();
-      }
-    });
-
-    // Move and clean up enemies - use speedFactor for variable speeds
-    this.enemies.children.entries.forEach(enemy => {
-      enemy.x -= scrollSpeed * GAME.SPEEDS.ENEMY_SCROLL_MULTIPLIER * enemy.speedFactor;  // Clouds move faster!
-      if (enemy.x < GAME.SPAWN.ENEMY_CLEANUP_X) {
-        enemy.destroy();
-      }
-    });
-  }
-
-  spawnStarWave() {
-    const height = this.scale.height;
-    const width = this.scale.width;
-    const numStars = Phaser.Math.Between(GAME.SPAWN.MIN_STARS_PER_WAVE, GAME.SPAWN.MAX_STARS_PER_WAVE);  // Reduced from 4-7 to 3-5
-
-    // Stars spawn in same area as enemies: fixed margins for consistency
-    const topMargin = GAME.SPAWN.TOP_MARGIN;  // Below score display
-    const bottomMargin = GAME.SPAWN.BOTTOM_MARGIN;  // Above ground level
-    const spawnHeight = height - topMargin - bottomMargin;
-
-    // Choose spawn pattern
-    const pattern = Phaser.Math.Between(0, 2);
-
-    if (pattern === 0) {
-      // Arc/wave pattern (like concept art)
-      const centerY = topMargin + spawnHeight / 2;
-      const arcRadius = Math.min(GAME.SPAWN.STAR_ARC_RADIUS_MAX, spawnHeight / 3);  // Responsive arc size
-      for (let i = 0; i < numStars; i++) {
-        const angle = (Math.PI / (numStars - 1)) * i - Math.PI / 2;
-        const x = width + i * GAME.SPAWN.STAR_ARC_SPACING;  // Increased spacing from 60 to 100
-        const y = centerY + Math.sin(angle) * arcRadius;
-        this.createStar(x, y);
-      }
-    } else if (pattern === 1) {
-      // Horizontal line with more spacing
-      const y = Phaser.Math.Between(topMargin + GAME.SPAWN.STAR_MARGIN_PADDING, height - bottomMargin - GAME.SPAWN.STAR_MARGIN_PADDING);
-      for (let i = 0; i < numStars; i++) {
-        this.createStar(width + i * GAME.SPAWN.STAR_HORIZONTAL_SPACING, y);  // Increased spacing from 70 to 120
-      }
-    } else {
-      // Vertical wave with more spacing
-      const startY = Phaser.Math.Between(topMargin + GAME.SPAWN.STAR_MARGIN_PADDING, topMargin + Math.min(GAME.SPAWN.BOTTOM_MARGIN, spawnHeight / 2));
-      for (let i = 0; i < numStars; i++) {
-        this.createStar(width + i * GAME.SPAWN.STAR_WAVE_SPACING, startY + Math.sin(i * 0.5) * GAME.SPAWN.STAR_HORIZONTAL_SPACING);  // Increased spacing
-      }
-    }
-  }
-
-  createStar(x, y) {
-    const star = this.stars.create(x, y, 'pickup_ifk');
-
-    // Small, nimble IFK logos - easy to navigate around
-    // Use height to detect mobile (mobiles have lower height even in landscape)
-    const isDesktop = this.scale.height > GAME.SCALES.MOBILE_HEIGHT_THRESHOLD;
-    const targetScale = isDesktop ? GAME.SCALES.STAR_DESKTOP : GAME.SCALES.STAR_MOBILE; // Adjusted for IFK logo (taller than star)
-    star.setScale(targetScale);
-    star.setDepth(GAME.DEPTHS.STARS);   // In front of background
-
-    // Use circular hitbox matching the small sprite
-    const radius = star.width * GAME.PHYSICS.STAR_HITBOX_RATIO;
-    star.body.setCircle(radius);
-    star.body.setOffset(star.width / 2 - radius, star.height / 2 - radius);
-
-    star.setVelocity(0, 0);
-  }
-
-  spawnEnemies() {
-    const height = this.scale.height;
-    const width = this.scale.width;
-
-    // Enemies spawn in lanes across the sky
-    const numEnemies = Phaser.Math.Between(GAME.SPAWN.MIN_ENEMIES, GAME.SPAWN.MAX_ENEMIES);
-
-    // Expand spawn area to reach closer to top and bottom
-    const topMargin = GAME.SPAWN.ENEMY_TOP_MARGIN;  // Closer to top, just below score
-    const bottomMargin = GAME.SPAWN.ENEMY_BOTTOM_MARGIN;  // Closer to ground but still visible
-    const spawnHeight = height - topMargin - bottomMargin;
-
-    // Smaller lane height for more lanes, plus random offset for variety
-    const laneHeight = GAME.SPAWN.LANE_HEIGHT;  // Smaller lanes = more distribution
-    const randomOffset = GAME.SPAWN.LANE_RANDOM_OFFSET;  // Increased random variation within each lane
-    const numLanes = Math.max(4, Math.floor(spawnHeight / laneHeight));
-    const occupiedLanes = [];
-
-    for (let i = 0; i < numEnemies && occupiedLanes.length < numLanes; i++) {
-      let lane;
-      let attempts = 0;
-
-      // Find an unoccupied lane
-      do {
-        lane = Phaser.Math.Between(0, numLanes - 1);
-        attempts++;
-      } while (occupiedLanes.includes(lane) && attempts < GAME.SPAWN.MAX_LANE_ATTEMPTS);
-
-      if (attempts < GAME.SPAWN.MAX_LANE_ATTEMPTS) {
-        occupiedLanes.push(lane);
-        // Calculate Y position with random offset for variety
-        const baseLaneY = topMargin + (lane * laneHeight) + (laneHeight / 2);
-        const offset = Phaser.Math.Between(-randomOffset, randomOffset);
-        const y = Phaser.Math.Clamp(baseLaneY + offset, topMargin, height - bottomMargin);
-
-        const enemyType = Phaser.Math.Between(0, 1) === 0 ? 'enemy_cloud' : 'enemy_robot';
-        this.createEnemy(width + GAME.SPAWN.ENEMY_X_OFFSET, y, enemyType);
-      }
-    }
-  }
-
-  createEnemy(x, y, type) {
-    const enemy = this.enemies.create(x, y, type);
-
-    // Small, nimble enemies - easy to navigate around
-    // Use height to detect mobile (mobiles have lower height even in landscape)
-    const isDesktop = this.scale.height > GAME.SCALES.MOBILE_HEIGHT_THRESHOLD;
-    const targetScale = isDesktop ? GAME.SCALES.ENEMY_DESKTOP : GAME.SCALES.ENEMY_MOBILE; // 15% storlek på PC, 6% på mobil
-    enemy.setScale(targetScale);
-    enemy.setDepth(GAME.DEPTHS.ENEMIES);   // In front of background
-
-    // Hitbox size matching the small sprite
-    enemy.setBodySize(enemy.width * GAME.PHYSICS.HITBOX_SIZE_RATIO, enemy.height * GAME.PHYSICS.HITBOX_SIZE_RATIO);
-
-    // Variable speed based on enemy type - creates dynamic difficulty
-    if (type === 'enemy_cloud') {
-      enemy.speedFactor = GAME.SPEEDS.CLOUD_SPEED_FACTOR;  // Clouds move 50% faster!
-    } else {
-      enemy.speedFactor = GAME.SPEEDS.ROBOT_SPEED_FACTOR;  // Robots/barrels move with background
-    }
-
-    enemy.setVelocity(0, 0);
+    this.difficultySystem.update(delta);
+    this.parallaxSystem.update(speedMultiplier);
+    this.spawnSystem.update(delta, speedMultiplier);
+    this.spawnSystem.updateStars(scrollSpeed);
+    this.spawnSystem.updateEnemies(scrollSpeed);
   }
 
   collectStar(player, star) {
