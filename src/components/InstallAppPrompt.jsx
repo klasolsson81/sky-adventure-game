@@ -139,6 +139,24 @@ function InstallAppPrompt({ onDismiss }) {
           </div>
 
           <style>{`
+            /* Override for confirmation screen - ensure it's ABOVE everything */
+            .install-prompt-overlay {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+              width: 100vw !important;
+              height: 100vh !important;
+              background: rgba(0, 0, 0, 0.95) !important;
+              z-index: 99999 !important;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 1.5rem;
+              animation: fadeIn 0.3s ease;
+            }
+
             .install-confirmation-steps {
               margin: 2rem 0 1rem 0;
               display: flex;
