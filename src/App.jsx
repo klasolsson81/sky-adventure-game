@@ -13,12 +13,16 @@ function App() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showFullscreenWarning, setShowFullscreenWarning] = useState(false);
 
+  // Detect if running as installed PWA (standalone mode)
+  const [isStandalone] = useState(() => {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.navigator.standalone === true;
+  });
+
   // Track if install prompt should show (same logic as InstallAppPrompt component)
   const [installPromptDismissed, setInstallPromptDismissed] = useState(() => {
     const dismissed = localStorage.getItem('pwa-install-dismissed');
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                        window.navigator.standalone === true;
 
     // If already dismissed, in standalone mode, or not mobile → consider dismissed
     return dismissed || isStandalone || !isMobile;
@@ -265,12 +269,15 @@ function App() {
             <button className="start-button" onClick={handleStartClick}>
               Starta Spel
             </button>
-            <button
-              className="fullscreen-toggle-button"
-              onClick={handleFullscreen}
-            >
-              {isFullscreen ? '⊗ Avsluta\nHelskärm' : '🖵 Aktivera\nHelskärm'}
-            </button>
+            {/* Only show fullscreen toggle in browser mode, not in installed PWA */}
+            {!isStandalone && (
+              <button
+                className="fullscreen-toggle-button"
+                onClick={handleFullscreen}
+              >
+                {isFullscreen ? '⊗ Avsluta\nHelskärm' : '🖵 Aktivera\nHelskärm'}
+              </button>
+            )}
           </div>
         </div>
       )}
