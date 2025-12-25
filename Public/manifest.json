@@ -1,0 +1,45 @@
+{
+  "name": "Sky High Adventures",
+  "short_name": "Sky High",
+  "description": "Fartfyllt flygspel - Samla stjärnor och undvik hinder!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#87CEEB",
+  "theme_color": "#87CEEB",
+  "orientation": "landscape",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/images/pickup_ifk.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/skyhigh-screenshot.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET"
+  },
+  "shortcuts": [
+    {
+      "name": "Starta Spel",
+      "short_name": "Spela",
+      "description": "Börja spela direkt",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/images/pickup_ifk.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

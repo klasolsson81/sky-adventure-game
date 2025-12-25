@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import GameComponent from './components/GameComponent';
 import ErrorBoundary from './components/ErrorBoundary';
+import InstallAppPrompt from './components/InstallAppPrompt';
 import './index.css';
 
 function App() {
@@ -228,6 +229,9 @@ function App() {
 
   return (
     <div className="app">
+      {/* PWA Install Prompt - Shows on mobile/tablet first visit */}
+      <InstallAppPrompt />
+
       {/* Portrait Mode Overlay - Force Landscape */}
       {isPortrait && (
         <div className="rotate-overlay">
