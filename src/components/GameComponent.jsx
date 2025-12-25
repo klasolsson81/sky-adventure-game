@@ -7,8 +7,8 @@ function GameComponent({ selectedShip, onGameOver }) {
   const gameRef = useRef(null);
   const phaserGameRef = useRef(null);
 
-  // FIX #13: Loading states for asset loading
-  const [isLoading, setIsLoading] = useState(true);
+  // FIX #13: Loading states for asset loading (disabled - causing issues)
+  const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);
 
   // FIX #4: Stable callback ref to prevent unnecessary re-renders
@@ -25,7 +25,7 @@ function GameComponent({ selectedShip, onGameOver }) {
   useEffect(() => {
     if (!gameRef.current) return;
 
-    setIsLoading(true);
+    // Removed: setIsLoading(true) - was blocking game start
     setLoadError(null);
 
     const config = {
@@ -46,10 +46,10 @@ function GameComponent({ selectedShip, onGameOver }) {
       },
       scene: GameScene,
       backgroundColor: '#87CEEB',
-      // FIX #13: Loading callbacks
+      // FIX #13: Loading callbacks (disabled preBoot to prevent blocking)
       callbacks: {
         preBoot: () => {
-          setIsLoading(true);
+          // Removed: setIsLoading(true) - was blocking game start
         },
         postBoot: (game) => {
           // Add global event listener for scene creation
