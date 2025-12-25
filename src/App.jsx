@@ -125,6 +125,11 @@ function App() {
       // Enter fullscreen
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {});
+
+        // FIX #15: Track fullscreen usage
+        if (window.va) {
+          window.va('track', 'Fullscreen Enabled');
+        }
       }
     } else {
       // Exit fullscreen
@@ -143,6 +148,11 @@ function App() {
     playClickSound();
     setSelectedShip(ship);
     setGameState('playing');
+
+    // FIX #15: Track pilot selection
+    if (window.va) {
+      window.va('track', 'Pilot Selected', { pilot: ship });
+    }
   };
 
   const handleGameOver = (finalScore) => {
@@ -160,6 +170,26 @@ function App() {
       .slice(0, 10); // Keep top 10
 
     setHighScores(newHighScores);
+
+    // FIX #15: Track game over and high score achievements
+    const isTopScore = newHighScores[0].score === finalScore;
+    const isPersonalBest = !highScores.some(entry =>
+      entry.name.toLowerCase() === selectedShip && entry.score >= finalScore
+    );
+
+    if (window.va) {
+      window.va('track', 'Game Over', {
+        pilot: pilotName,
+        score: finalScore,
+        isTopScore,
+        isPersonalBest,
+        leaderboardPosition: newHighScores.findIndex(e => e === newEntry) + 1
+      });
+
+      if (isTopScore) {
+        window.va('track', 'High Score Achieved', { score: finalScore, pilot: pilotName });
+      }
+    }
 
     // FIX #3: Safe localStorage with error handling
     try {
@@ -189,6 +219,11 @@ function App() {
     playClickSound();
     setSelectedShip(null);
     setGameState('select');
+
+    // FIX #15: Track replay
+    if (window.va) {
+      window.va('track', 'Play Again', { previousScore: score });
+    }
   };
 
   return (
@@ -229,7 +264,7 @@ function App() {
             <p>
               Spelet är optimerat för PC och fungerar bäst på mobil i helskärmsläge.
             </p>
-            <p style={{ fontSize: '0.9rem', color: '#ccc', marginTop: '1rem' }}>
+            <p className="modal-subtitle">
               Vill du aktivera helskärmsläge för bästa upplevelse?
             </p>
             <div className="modal-buttons">
@@ -304,11 +339,7 @@ function App() {
                   return (
                     <li
                       key={idx}
-                      style={isCurrentScore ? {
-                        color: '#FFD700',
-                        fontWeight: 'bold',
-                        textShadow: '0 0 10px #FFD700'
-                      } : {}}
+                      className={isCurrentScore ? 'current-highscore' : ''}
                     >
                       {entry.name} - {entry.score}
                     </li>

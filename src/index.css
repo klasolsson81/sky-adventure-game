@@ -550,6 +550,20 @@ body {
   box-shadow: 0 2px 0 #333, 0 4px 10px rgba(0,0,0,0.3);
 }
 
+/* FIX #10: Remove inline styles - Modal subtitle */
+.modal-subtitle {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-top: 1rem;
+}
+
+/* FIX #10: Remove inline styles - Current high score highlight */
+.current-highscore {
+  color: #FFD700;
+  font-weight: bold;
+  text-shadow: 0 0 10px #FFD700;
+}
+
 @media (max-width: 768px) {
   .modal-content {
     padding: 1.5rem;
